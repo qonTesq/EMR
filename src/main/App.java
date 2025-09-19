@@ -1,8 +1,8 @@
 package main;
 
-import main.model.PatientHistory;
-import main.model.Patients;
-import main.model.Procedures;
+import main.models.PatientHistory;
+import main.models.Patients;
+import main.models.Procedures;
 
 public class App {
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package main.model;
+package main.models;
 
 public class PatientHistory {
     private String id;
