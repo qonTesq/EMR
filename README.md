@@ -1,2 +1,2 @@
 # EMR
-A software program for managing electronic medical records.
+A commandline software program for managing electronic medical records.
