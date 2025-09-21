@@ -5,8 +5,7 @@ import java.time.LocalDate;
 /**
  * Represents a patient in the Electronic Medical Records system.
  * This model class encapsulates all patient information including personal
- * details,
- * contact information, and insurance data.
+ * details, contact information, and insurance data.
  *
  * Each patient is uniquely identified by their Medical Record Number (MRN).
  */

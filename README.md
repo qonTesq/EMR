@@ -1,13 +1,12 @@
 # EMR
 
-A CLI application for managing electronic medical records.
+A CLI program for managing electronic medical records.
 
 ## Features
 
-- Complete CRUD operations for Patients, Patient History, and Procedures
-- CLI interface for user interaction with validation for required fields
-- MySQL database integration
-- Menu-driven navigation between different entities
+- CLI interface for user interaction.
+- MySQL database integration.
+- Menu-driven navigation between different entities.
 
 ## Environment Configuration
 
@@ -17,9 +16,9 @@ Before running the EMR application, you must configure the database connection s
 
 The application requires three environment variables to connect to your MySQL database:
 
-- `DB_URL`: The JDBC connection string for your MySQL database
-- `DB_USER`: Your MySQL database username
-- `DB_PASSWORD`: Your MySQL database password
+- `EMR_DB_URL`: The JDBC connection string for your MySQL database
+- `EMR_DB_USER`: Your MySQL database username
+- `EMR_DB_PASSWORD`: Your MySQL database password
 
 ### Configuration Methods
 
@@ -29,9 +28,9 @@ The application requires three environment variables to connect to your MySQL da
 2. Add the following content, replacing the placeholder values with your actual database information:
 
    ```
-   DB_URL=jdbc:mysql://localhost:3306/your_database_name
-   DB_USER=your_mysql_username
-   DB_PASSWORD=your_mysql_password
+   EMR_DB_URL=jdbc:mysql://localhost:3306/your_database_name
+   EMR_DB_USER=your_mysql_username
+   EMR_DB_PASSWORD=your_mysql_password
    ```
 
 3. The application will automatically load these variables from the `.env` file
@@ -43,16 +42,16 @@ Alternatively, you can set these as system environment variables:
 - On Windows (PowerShell):
 
   ```
-  $env:DB_URL="jdbc:mysql://localhost:3306/your_database_name"
-  $env:DB_USER="your_mysql_username"
-  $env:DB_PASSWORD="your_mysql_password"
+  $env:EMR_DB_URL="jdbc:mysql://localhost:3306/your_database_name"
+  $env:EMR_DB_USER="your_mysql_username"
+  $env:EMR_DB_PASSWORD="your_mysql_password"
   ```
 
 - On Linux/macOS:
   ```
-  export DB_URL=jdbc:mysql://localhost:3306/your_database_name
-  export DB_USER=your_mysql_username
-  export DB_PASSWORD=your_mysql_password
+  export EMR_DB_URL=jdbc:mysql://localhost:3306/your_database_name
+  export EMR_DB_USER=your_mysql_username
+  export EMR_DB_PASSWORD=your_mysql_password
   ```
 
 ### Database Connection Details

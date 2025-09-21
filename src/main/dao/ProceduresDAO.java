@@ -8,12 +8,11 @@ import main.util.Database;
 
 /**
  * Data Access Object (DAO) for managing medical procedures in the database.
- * This class provides methods to perform create operations on the procedures
+ * This class provides methods to perform CRUD operations on the procedures
  * table.
  *
  * Medical procedures define the available treatments and services that can be
- * performed on patients. This DAO handles the creation of new procedure
- * definitions.
+ * performed on patients.
  */
 public class ProceduresDAO {
 

@@ -12,9 +12,9 @@ import java.sql.SQLException;
  * connection lifecycle, and basic query execution for the EMR system.
  *
  * The class uses environment variables for secure configuration:
- * - DB_URL: JDBC connection string
- * - DB_USER: Database username
- * - DB_PASSWORD: Database password
+ * - EMR_DB_URL: JDBC connection string
+ * - EMR_DB_USER: Database username
+ * - EMR_DB_PASSWORD: Database password
  */
 public class Database {
 
@@ -36,17 +36,18 @@ public class Database {
      * and establishes the connection immediately.
      *
      * Environment variables used:
-     * - DB_URL (defaults to localhost if not set)
-     * - DB_USER (defaults to placeholder if not set)
-     * - DB_PASSWORD (defaults to placeholder if not set)
+     * - EMR_DB_URL (defaults to localhost if not set)
+     * - EMR_DB_USER (defaults to placeholder if not set)
+     * - EMR_DB_PASSWORD (defaults to placeholder if not set)
      *
      * @throws RuntimeException if database connection fails
      */
     public Database() {
         // Load database configuration from environment variables with fallbacks
-        this.URL = System.getenv("DB_URL") != null ? System.getenv("DB_URL") : "jdbc:mysql://localhost:3306/dbname";
-        this.USER = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "your_username";
-        this.PASSWORD = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "your_password";
+        this.URL = System.getenv("EMR_DB_URL") != null ? System.getenv("EMR_DB_URL")
+                : "jdbc:mysql://localhost:3306/your_database_name";
+        this.USER = System.getenv("EMR_DB_USER") != null ? System.getenv("EMR_DB_USER") : "your_username";
+        this.PASSWORD = System.getenv("EMR_DB_PASSWORD") != null ? System.getenv("EMR_DB_PASSWORD") : "your_password";
 
         // Establish database connection
         connect();

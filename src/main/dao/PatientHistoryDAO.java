@@ -10,12 +10,11 @@ import main.util.Database;
 /**
  * Data Access Object (DAO) for managing patient history records in the
  * database.
- * This class provides methods to perform create operations on the
+ * This class provides methods to perform CRUD operations on the
  * patient_history table.
  *
  * Patient history records link patients to medical procedures, including
- * billing information and attending physicians. This DAO handles the creation
- * of these records.
+ * billing information and attending doctors.
  */
 public class PatientHistoryDAO {
 

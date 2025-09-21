@@ -9,7 +9,7 @@ import main.util.Database;
 
 /**
  * Data Access Object (DAO) for managing patient records in the database.
- * This class provides methods to perform create operations on the patients
+ * This class provides methods to perform CRUD operations on the patients
  * table.
  *
  * The DAO pattern is used to separate business logic from data access logic,

@@ -5,8 +5,7 @@ import java.time.LocalDate;
 /**
  * Represents a patient history record in the Electronic Medical Records system.
  * This model class encapsulates information about medical procedures performed
- * on patients,
- * including billing information and the attending physician.
+ * on patients, including billing information and the attending doctor.
  *
  * Each patient history record is uniquely identified by its ID and links a
  * patient to a specific medical procedure with associated details.
@@ -41,7 +40,7 @@ public class PatientHistory {
      * @param procedureID ID of the procedure performed
      * @param date        Date when the procedure was performed
      * @param billing     Billing amount for the procedure
-     * @param doctor      Name of the attending physician
+     * @param doctor      Name of the attending doctor
      */
     public PatientHistory(String id, int patientID, String procedureID, LocalDate date, double billing, String doctor) {
         this.id = id;

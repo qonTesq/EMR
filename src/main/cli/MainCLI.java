@@ -74,7 +74,7 @@ public class MainCLI {
      * Shows available entity types that can be managed and the exit option.
      */
     private void showMainMenu() {
-        System.out.println("\n=== EMR Management System ===");
+        System.out.println("=== EMR Management System ===");
         System.out.println("Choose an entity to manage:");
         System.out.println("1. Patients");
         System.out.println("2. Patient History");
