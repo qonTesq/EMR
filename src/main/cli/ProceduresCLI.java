@@ -1,39 +1,79 @@
 package main.cli;
 
-import java.util.Scanner;
-
 import main.dao.ProceduresDAO;
 import main.models.Procedures;
 import main.util.Database;
 
 /**
  * Command Line Interface for managing medical procedures in the EMR system.
- * This class provides a menu-driven interface for performing CRUD operations
- * on medical procedure data, which includes procedure IDs and descriptive
- * names.
+ * <p>
+ * This class provides an interface for managing the catalog of available
+ * medical
+ * procedures. Procedures represent the various medical services, tests, and
+ * treatments
+ * that can be performed on patients. Each procedure has a unique identifier and
+ * descriptive name. These procedures are referenced when creating patient
+ * history records.
+ * </p>
+ * 
+ * <h3>Features:</h3>
+ * <ul>
+ * <li>Create new procedure definitions</li>
+ * <li>Search and retrieve procedures by ID</li>
+ * <li>View all available procedures</li>
+ * <li>Update procedure information</li>
+ * <li>Delete procedure definitions</li>
+ * </ul>
+ * 
+ * <h3>Example Procedures:</h3>
+ * <ul>
+ * <li>LAB-001: Complete Blood Count</li>
+ * <li>IMG-005: MRI Scan Brain</li>
+ * <li>SURG-012: Appendectomy</li>
+ * </ul>
+ * 
+ * @see ProceduresDAO
+ * @see Procedures
  */
-public class ProceduresCLI {
+public class ProceduresCLI extends CLI {
 
-    /** Data Access Object for procedures database operations */
-    private ProceduresDAO proceduresDAO;
-
-    /** Scanner for reading user input from console */
-    private Scanner scanner;
+    /**
+     * Data Access Object for performing database operations on procedure records
+     */
+    private final ProceduresDAO proceduresDAO;
 
     /**
      * Constructs a new ProceduresCLI with the specified database connection.
-     *
-     * @param db the Database utility instance for managing connections
+     * <p>
+     * Initializes the procedures data access object for database operations.
+     * </p>
+     * 
+     * @param db the Database instance for database operations
+     * @throws NullPointerException if db is null
      */
     public ProceduresCLI(Database db) {
+        super();
         this.proceduresDAO = new ProceduresDAO(db);
-        this.scanner = new Scanner(System.in);
     }
 
     /**
-     * Starts the procedures management interface.
-     * Displays the procedures menu and processes user choices in a loop
-     * until the user chooses to return to the main menu.
+     * Starts the procedures management interface and enters the interaction loop.
+     * <p>
+     * This method displays the procedures management menu and processes user
+     * choices
+     * until the user chooses to return to the main menu. Procedures defined here
+     * become available for use when recording patient history.
+     * </p>
+     * 
+     * <h3>Menu Options:</h3>
+     * <ol>
+     * <li>Create Procedure - Add a new procedure to the catalog</li>
+     * <li>Read Procedure by ID - Look up a specific procedure</li>
+     * <li>Read All Procedures - View the complete procedure catalog</li>
+     * <li>Update Procedure - Modify existing procedure information</li>
+     * <li>Delete Procedure - Remove a procedure from the catalog</li>
+     * <li>Back to Main Menu - Return to main application menu</li>
+     * </ol>
      */
     public void start() {
         boolean running = true;
@@ -83,119 +123,67 @@ public class ProceduresCLI {
     }
 
     /**
-     * Handles the creation of a new medical procedure record.
-     * Prompts the user for procedure ID and name, validates the input,
-     * and attempts to save the procedure to the database.
-     *
-     * Medical procedures represent the various treatments and services
-     * that can be performed on patients and billed accordingly.
+     * Handles the creation of a new medical procedure definition in the system
+     * catalog.
+     * <p>
+     * This method adds a new procedure type to the available procedures catalog.
+     * Procedures defined here can be referenced when creating patient history
+     * records.
+     * Each procedure is identified by a unique ID and has a descriptive name.
+     * </p>
+     * 
+     * <h3>Required Information:</h3>
+     * <ul>
+     * <li><b>Procedure ID</b> - Unique identifier (e.g., "P001", "XRAY-001")</li>
+     * <li><b>Procedure Name</b> - Descriptive name (e.g., "Blood Test", "X-Ray
+     * Chest")</li>
+     * </ul>
+     * 
+     * <h3>Examples:</h3>
+     * <ul>
+     * <li>ID: "LAB-001", Name: "Complete Blood Count"</li>
+     * <li>ID: "IMG-005", Name: "MRI Scan Brain"</li>
+     * <li>ID: "SURG-012", Name: "Appendectomy"</li>
+     * </ul>
+     * 
+     * @see ProceduresDAO#createProcedure(Procedures)
      */
     private void createProcedure() {
         System.out.println("\n--- Create New Procedure ---");
 
-        // Collect procedure information from user input
+        // Collect procedure information with validation
         String id = getRequiredStringInput("Enter Procedure ID: ");
         String name = getRequiredStringInput("Enter Procedure Name: ");
 
         // Create procedure object with collected data
         Procedures procedure = new Procedures(id, name);
 
+        // Attempt to save procedure to database
         try {
-            // Attempt to save procedure record to database
             if (proceduresDAO.createProcedure(procedure)) {
                 System.out.println("Procedure created successfully!");
             } else {
                 System.out.println("Failed to create procedure.");
             }
         } catch (Exception e) {
+            // Handle database errors (e.g., duplicate procedure ID)
             System.out.println("Error creating procedure: " + e.getMessage());
         }
     }
 
-    /**
-     * Placeholder method for reading a procedure record by ID.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will retrieve and display procedure information.
-     */
     private void readProcedure() {
         System.out.println("\n--- Read Procedure (WIP) ---");
     }
 
-    /**
-     * Placeholder method for reading all procedure records.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will retrieve and display all medical procedures.
-     */
     private void readAllProcedures() {
         System.out.println("\n--- All Procedures (WIP) ---");
     }
 
-    /**
-     * Placeholder method for updating a procedure record.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will allow modification of existing procedure data.
-     */
     private void updateProcedure() {
         System.out.println("\n--- Update Procedure (WIP) ---");
     }
 
-    /**
-     * Placeholder method for deleting a procedure record.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will allow removal of procedure records with
-     * confirmation.
-     */
     private void deleteProcedure() {
         System.out.println("\n--- Delete Procedure (WIP) ---");
-    }
-
-    // ==================== Helper Methods for Input Validation ====================
-
-    /**
-     * Reads and validates integer input from the user.
-     * Continuously prompts until a valid integer is entered.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated integer input
-     */
-    private int getIntInput(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                return Integer.parseInt(scanner.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
-    }
-
-    /**
-     * Reads a string input from the user.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the trimmed string input
-     */
-    private String getStringInput(String prompt) {
-        System.out.print(prompt);
-        return scanner.nextLine().trim();
-    }
-
-    /**
-     * Reads and validates required string input from the user.
-     * Ensures the input is not empty by continuously prompting until valid input is
-     * provided.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated non-empty string input
-     */
-    private String getRequiredStringInput(String prompt) {
-        String input;
-        do {
-            input = getStringInput(prompt);
-            if (input.isEmpty()) {
-                System.out.println("This field is required. Please enter a value.");
-            }
-        } while (input.isEmpty());
-        return input;
     }
 }

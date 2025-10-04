@@ -2,132 +2,161 @@ package main.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import main.config.DatabaseConfig;
+
 /**
- * Utility class for managing MySQL database connections and operations.
- * This class provides a centralized way to handle database connectivity,
- * connection lifecycle, and basic query execution for the EMR system.
+ * Utility class for managing MySQL database connections.
+ * <p>
+ * This class provides centralized database connectivity and connection
+ * lifecycle
+ * management for the EMR system. It uses the DatabaseConfig class for
+ * configuration
+ * and follows the facade pattern to simplify database connection management.
+ * </p>
+ * 
+ * <h3>Key Features:</h3>
+ * <ul>
+ * <li>Automatic connection establishment on instantiation</li>
+ * <li>Configurable via DatabaseConfig object</li>
+ * <li>Proper resource cleanup with close() method</li>
+ * <li>Exception handling with meaningful error messages</li>
+ * </ul>
+ * 
+ * <h3>Usage Example:</h3>
+ * 
+ * <pre>
+ * // Using default configuration
+ * Database db = new Database();
+ * try {
+ *     Connection conn = db.getConnection();
+ *     // Perform database operations
+ * } finally {
+ *     db.close();
+ * }
+ * </pre>
  *
- * The class uses environment variables for secure configuration:
- * - EMR_DB_URL: JDBC connection string
- * - EMR_DB_USER: Database username
- * - EMR_DB_PASSWORD: Database password
+ * @see DatabaseConfig
  */
 public class Database {
 
-    /** JDBC connection URL for the MySQL database */
-    private final String URL;
+    /** Configuration object containing database connection parameters */
+    private final DatabaseConfig config;
 
-    /** Database username for authentication */
-    private final String USER;
-
-    /** Database password for authentication */
-    private final String PASSWORD;
-
-    /** Active database connection instance */
+    /** Active JDBC connection to the database */
     private Connection connection;
 
     /**
-     * Constructs a new Database utility instance.
-     * Initializes database connection parameters from environment variables
-     * and establishes the connection immediately.
+     * Constructs a Database instance with default configuration.
+     * <p>
+     * This constructor uses {@link DatabaseConfig} with default settings,
+     * which reads from environment variables or uses built-in defaults.
+     * The connection is established immediately upon construction.
+     * </p>
      *
-     * Environment variables used:
-     * - EMR_DB_URL (defaults to localhost if not set)
-     * - EMR_DB_USER (defaults to placeholder if not set)
-     * - EMR_DB_PASSWORD (defaults to placeholder if not set)
-     *
-     * @throws RuntimeException if database connection fails
+     * @throws RuntimeException if database connection fails, wrapping the
+     *                          underlying SQLException
+     * @see #Database(DatabaseConfig) for custom configuration
      */
     public Database() {
-        // Load database configuration from environment variables with fallbacks
-        this.URL = System.getenv("EMR_DB_URL") != null ? System.getenv("EMR_DB_URL")
-                : "jdbc:mysql://localhost:3306/your_database_name";
-        this.USER = System.getenv("EMR_DB_USER") != null ? System.getenv("EMR_DB_USER") : "your_username";
-        this.PASSWORD = System.getenv("EMR_DB_PASSWORD") != null ? System.getenv("EMR_DB_PASSWORD") : "your_password";
+        this(new DatabaseConfig());
+    }
 
-        // Establish database connection
+    /**
+     * Constructs a Database instance with custom configuration.
+     * <p>
+     * This constructor allows injection of a custom DatabaseConfig,
+     * useful for testing or when using non-standard configurations.
+     * The connection is established immediately upon construction.
+     * </p>
+     *
+     * @param config the database configuration object containing connection
+     *               parameters
+     * @throws RuntimeException     if database connection fails, wrapping the
+     *                              underlying SQLException
+     * @throws NullPointerException if config is null
+     */
+    public Database(DatabaseConfig config) {
+        this.config = config;
         connect();
     }
 
     /**
-     * Establishes a connection to the MySQL database.
-     * Uses JDBC DriverManager to create a connection with the configured
-     * parameters.
-     *
-     * @throws RuntimeException if connection fails (wraps SQLException)
+     * Establishes connection to the MySQL database.
+     * <p>
+     * This method is called automatically during construction. It uses JDBC's
+     * DriverManager to establish a connection with the parameters from the
+     * configuration object. On successful connection, a confirmation message
+     * is printed to stdout. On failure, an error message is printed to stderr
+     * and a RuntimeException is thrown.
+     * </p>
+     * 
+     * @throws RuntimeException if connection fails, wrapping the underlying
+     *                          SQLException
      */
     private void connect() {
         try {
-            // Create database connection using JDBC
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            // Establish JDBC connection using configuration parameters
+            connection = DriverManager.getConnection(
+                    config.getUrl(),
+                    config.getUser(),
+                    config.getPassword());
+            // Confirm successful connection
             System.out.println("=== Connected to MySQL database ===\n");
         } catch (SQLException e) {
-            // Print error message and re-throw as RuntimeException for easier handling
-            System.err.println(
-                    "!!! Connection failed: " + e.getMessage() + " (" + e.getClass().getSimpleName() + ") !!!\n");
-            throw new RuntimeException(e);
+            // Log error and re-throw as unchecked exception for easier handling
+            System.err.println("!!! Connection failed: " + e.getMessage() + " !!!\n");
+            throw new RuntimeException("Failed to connect to database", e);
         }
     }
 
     /**
-     * Closes the database connection and releases resources.
-     * Should be called when the application is shutting down to ensure
-     * proper cleanup of database resources.
+     * Closes the database connection and releases all associated resources.
+     * <p>
+     * This method should always be called when the Database object is no longer
+     * needed,
+     * typically in a finally block or using try-with-resources pattern. It safely
+     * closes
+     * the connection even if it's null, and handles any exceptions that occur
+     * during closure.
+     * Calling this method multiple times is safe - subsequent calls have no effect.
+     * </p>
+     * 
+     * <h3>Best Practice:</h3>
+     * 
+     * <pre>
+     * Database db = new Database();
+     * try {
+     *     // Use database
+     * } finally {
+     *     db.close(); // Always close in finally block
+     * }
+     * </pre>
      */
     public void close() {
         if (connection != null) {
             try {
-                // Close the database connection
                 connection.close();
                 System.out.println("=== Database connection closed ===\n");
             } catch (SQLException e) {
-                // Log error if connection closure fails
-                System.err.println("!!! Error closing connection: " + e.getMessage() + " ("
-                        + e.getClass().getSimpleName() + ") !!!\n");
+                // Log error but don't throw - cleanup should not fail the application
+                System.err.println("!!! Error closing connection: " + e.getMessage() + " !!!\n");
             }
         }
     }
 
     /**
      * Returns the active database connection.
-     * This connection can be used by DAO classes to execute SQL statements.
-     *
-     * @return the active Connection object
+     * <p>
+     * This method provides access to the underlying JDBC Connection object,
+     * which can be used by DAO classes to create PreparedStatements and
+     * execute SQL queries.
+     * </p>
+     * 
+     * @return the active JDBC Connection object, or null if connection was closed
      */
     public Connection getConnection() {
         return connection;
-    }
-
-    /**
-     * Executes a SELECT query and returns the result set.
-     * This is a convenience method for simple queries that don't require
-     * parameters.
-     *
-     * @param sql the SQL SELECT statement to execute
-     * @return ResultSet containing the query results
-     * @throws SQLException if a database access error occurs or the SQL is invalid
-     */
-    public ResultSet executeQuery(String sql) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement(sql);
-        return stmt.executeQuery();
-    }
-
-    /**
-     * Executes an INSERT, UPDATE, or DELETE statement.
-     * This is a convenience method for simple DML operations that don't require
-     * parameters.
-     *
-     * @param sql the SQL DML statement to execute
-     * @return the number of rows affected by the statement
-     * @throws SQLException if a database access error occurs or the SQL is invalid
-     */
-    public int executeUpdate(String sql) throws SQLException {
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            return stmt.executeUpdate();
-        }
     }
 }

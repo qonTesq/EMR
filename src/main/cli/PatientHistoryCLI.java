@@ -1,9 +1,6 @@
 package main.cli;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 
 import main.dao.PatientHistoryDAO;
 import main.models.PatientHistory;
@@ -12,35 +9,71 @@ import main.util.Database;
 /**
  * Command Line Interface for managing patient history records in the EMR
  * system.
- * This class provides a menu-driven interface for performing CRUD operations
- * on patient history data, which links patients to medical procedures with
- * billing information and doctor details.
+ * <p>
+ * This class provides a comprehensive interface for managing the relationship
+ * between
+ * patients and the medical procedures they receive. Patient history records
+ * serve as
+ * the core of the medical records system, tracking what procedures were
+ * performed,
+ * when they occurred, who performed them, and associated billing information.
+ * </p>
+ * 
+ * <h3>Features:</h3>
+ * <ul>
+ * <li>Create patient history records linking patients to procedures</li>
+ * <li>Search and retrieve patient history by record ID</li>
+ * <li>View complete patient history</li>
+ * <li>Update existing history records</li>
+ * <li>Delete history records</li>
+ * </ul>
+ * 
+ * @see PatientHistoryDAO
+ * @see PatientHistory
  */
-public class PatientHistoryCLI {
+public class PatientHistoryCLI extends CLI {
 
-    /** Data Access Object for patient history database operations */
-    private PatientHistoryDAO patientHistoryDAO;
-
-    /** Scanner for reading user input from console */
-    private Scanner scanner;
-
-    /** Date formatter for parsing and displaying dates in yyyy-MM-dd format */
-    private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    /**
+     * Data Access Object for performing database operations on patient history
+     * records
+     */
+    private final PatientHistoryDAO patientHistoryDAO;
 
     /**
      * Constructs a new PatientHistoryCLI with the specified database connection.
-     *
-     * @param db the Database utility instance for managing connections
+     * <p>
+     * Initializes the patient history data access object for database operations.
+     * </p>
+     * 
+     * @param db the Database instance for database operations
+     * @throws NullPointerException if db is null
      */
     public PatientHistoryCLI(Database db) {
+        super();
         this.patientHistoryDAO = new PatientHistoryDAO(db);
-        this.scanner = new Scanner(System.in);
     }
 
     /**
-     * Starts the patient history management interface.
-     * Displays the patient history menu and processes user choices in a loop
-     * until the user chooses to return to the main menu.
+     * Starts the patient history management interface and enters the interaction
+     * loop.
+     * <p>
+     * This method displays the patient history management menu and processes user
+     * choices until the user chooses to return to the main menu. Patient history
+     * operations require valid patient IDs and procedure IDs to maintain
+     * referential
+     * integrity.
+     * </p>
+     * 
+     * <h3>Menu Options:</h3>
+     * <ol>
+     * <li>Create Patient History - Record a new procedure performed on a
+     * patient</li>
+     * <li>Read Patient History by ID - Look up a specific history record</li>
+     * <li>Read All Patient History - View all medical history records</li>
+     * <li>Update Patient History - Modify existing history information</li>
+     * <li>Delete Patient History - Remove a history record</li>
+     * <li>Back to Main Menu - Return to main application menu</li>
+     * </ol>
      */
     public void start() {
         boolean running = true;
@@ -90,161 +123,74 @@ public class PatientHistoryCLI {
     }
 
     /**
-     * Handles the creation of a new patient history record.
-     * Prompts the user for all required patient history information,
-     * validates the input, and attempts to save the record to the database.
-     *
-     * A patient history record links a patient to a medical procedure,
-     * including billing amount and attending physician information.
+     * Handles the creation of a new patient history record linking a patient to a
+     * procedure.
+     * <p>
+     * This method collects information about a medical procedure performed on a
+     * patient,
+     * including the procedure details, billing information, and attending
+     * physician.
+     * Patient history records serve as the junction between patients and the
+     * procedures
+     * they receive, maintaining a complete medical history with financial tracking.
+     * </p>
+     * 
+     * <h3>Required Information:</h3>
+     * <ul>
+     * <li><b>History ID</b> - Unique identifier for this history record</li>
+     * <li><b>Patient ID</b> - MRN of the patient (must exist in patients
+     * table)</li>
+     * <li><b>Procedure ID</b> - ID of the procedure performed (must exist in
+     * procedures table)</li>
+     * <li><b>Date</b> - Date when the procedure was performed (yyyy-MM-dd
+     * format)</li>
+     * <li><b>Billing Amount</b> - Cost of the procedure in dollars</li>
+     * <li><b>Doctor Name</b> - Name of the physician who performed the
+     * procedure</li>
+     * </ul>
+     * 
+     * @see PatientHistoryDAO#createPatientHistory(PatientHistory)
      */
     private void createPatientHistory() {
         System.out.println("\n--- Create New Patient History ---");
 
-        // Collect all required patient history information from user input
+        // Collect all required patient history information with validation
         String id = getRequiredStringInput("Enter History ID: ");
         int patientID = getIntInput("Enter Patient ID: ");
         String procedureID = getRequiredStringInput("Enter Procedure ID: ");
-        LocalDate date = getDateInput("Enter Date (YYYY-MM-DD): ");
+        LocalDate date = getDateInput("Enter Date (yyyy-MM-dd): ");
         double billing = getDoubleInput("Enter Billing Amount: ");
         String doctor = getRequiredStringInput("Enter Doctor Name: ");
 
         // Create patient history object with collected data
         PatientHistory patientHistory = new PatientHistory(id, patientID, procedureID, date, billing, doctor);
 
+        // Attempt to save patient history record to database
         try {
-            // Attempt to save patient history record to database
             if (patientHistoryDAO.createPatientHistory(patientHistory)) {
                 System.out.println("Patient history created successfully!");
             } else {
                 System.out.println("Failed to create patient history.");
             }
         } catch (Exception e) {
+            // Handle database errors (e.g., foreign key violations, duplicate IDs)
             System.out.println("Error creating patient history: " + e.getMessage());
         }
     }
 
-    /**
-     * Placeholder method for reading a patient history record by ID.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will retrieve and display patient history information.
-     */
     private void readPatientHistory() {
         System.out.println("\n--- Read Patient History (WIP) ---");
     }
 
-    /**
-     * Placeholder method for reading all patient history records.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will retrieve and display all patient history records.
-     */
     private void readAllPatientHistory() {
         System.out.println("\n--- All Patient History (WIP) ---");
     }
 
-    /**
-     * Placeholder method for updating a patient history record.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will allow modification of existing patient history
-     * data.
-     */
     private void updatePatientHistory() {
         System.out.println("\n--- Update Patient History (WIP) ---");
     }
 
-    /**
-     * Placeholder method for deleting a patient history record.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will allow removal of patient history records with
-     * confirmation.
-     */
     private void deletePatientHistory() {
         System.out.println("\n--- Delete Patient History (WIP) ---");
-    }
-
-    // ==================== Helper Methods for Input Validation ====================
-
-    /**
-     * Reads and validates integer input from the user.
-     * Continuously prompts until a valid integer is entered.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated integer input
-     */
-    private int getIntInput(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                return Integer.parseInt(scanner.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
-    }
-
-    /**
-     * Reads and validates double input from the user.
-     * Continuously prompts until a valid decimal number is entered.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated double input
-     */
-    private double getDoubleInput(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                return Double.parseDouble(scanner.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
-    }
-
-    /**
-     * Reads a string input from the user.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the trimmed string input
-     */
-    private String getStringInput(String prompt) {
-        System.out.print(prompt);
-        return scanner.nextLine().trim();
-    }
-
-    /**
-     * Reads and validates required string input from the user.
-     * Ensures the input is not empty by continuously prompting until valid input is
-     * provided.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated non-empty string input
-     */
-    private String getRequiredStringInput(String prompt) {
-        String input;
-        do {
-            input = getStringInput(prompt);
-            if (input.isEmpty()) {
-                System.out.println("This field is required. Please enter a value.");
-            }
-        } while (input.isEmpty());
-        return input;
-    }
-
-    /**
-     * Reads and validates date input from the user.
-     * Accepts dates in yyyy-MM-dd format and converts them to LocalDate objects.
-     * Continuously prompts until a valid date is entered.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated LocalDate object
-     */
-    private LocalDate getDateInput(String prompt) {
-        while (true) {
-            String input = getRequiredStringInput(prompt);
-            try {
-                return LocalDate.parse(input, dateFormatter);
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date format. Please use yyyy-MM-dd format.");
-            }
-        }
     }
 }

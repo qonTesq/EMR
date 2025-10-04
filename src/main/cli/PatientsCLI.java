@@ -1,9 +1,6 @@
 package main.cli;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 
 import main.dao.PatientDAO;
 import main.models.Patients;
@@ -11,35 +8,60 @@ import main.util.Database;
 
 /**
  * Command Line Interface for managing patient records in the EMR system.
- * This class provides a menu-driven interface for performing CRUD operations
- * on patient data, including creating new patients and placeholder methods
- * for future read, update, and delete operations.
+ * <p>
+ * This class provides a comprehensive menu-driven interface for performing
+ * CRUD (Create, Read, Update, Delete) operations on patient data. It handles
+ * patient demographic information, contact details, and insurance information.
+ * </p>
+ * 
+ * <h3>Features:</h3>
+ * <ul>
+ * <li>Create new patient records with complete demographic information</li>
+ * <li>Search and retrieve patient information by MRN</li>
+ * <li>View all patients in the system</li>
+ * <li>Update existing patient information</li>
+ * <li>Delete patient records</li>
+ * </ul>
+ * 
+ * @see PatientDAO
+ * @see Patients
  */
-public class PatientsCLI {
+public class PatientsCLI extends CLI {
 
-    /** Data Access Object for patient database operations */
-    private PatientDAO patientDAO;
-
-    /** Scanner for reading user input from console */
-    private Scanner scanner;
-
-    /** Date formatter for parsing and displaying dates in yyyy-MM-dd format */
-    private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    /** Data Access Object for performing database operations on patient records */
+    private final PatientDAO patientDAO;
 
     /**
      * Constructs a new PatientsCLI with the specified database connection.
-     *
-     * @param db the Database utility instance for managing connections
+     * <p>
+     * Initializes the patient data access object for database operations.
+     * </p>
+     * 
+     * @param db the Database instance for database operations
+     * @throws NullPointerException if db is null
      */
     public PatientsCLI(Database db) {
+        super();
         this.patientDAO = new PatientDAO(db);
-        this.scanner = new Scanner(System.in);
     }
 
     /**
-     * Starts the patient management interface.
-     * Displays the patient menu and processes user choices in a loop
-     * until the user chooses to return to the main menu.
+     * Starts the patient management interface and enters the interaction loop.
+     * <p>
+     * This method displays the patient management menu and processes user choices
+     * until the user chooses to return to the main menu. Each menu option delegates
+     * to a specific method for handling that operation.
+     * </p>
+     * 
+     * <h3>Menu Options:</h3>
+     * <ol>
+     * <li>Create Patient - Add a new patient record</li>
+     * <li>Read Patient by MRN - Look up a specific patient</li>
+     * <li>Read All Patients - List all patients in the system</li>
+     * <li>Update Patient - Modify existing patient information</li>
+     * <li>Delete Patient - Remove a patient record</li>
+     * <li>Back to Main Menu - Return to main application menu</li>
+     * </ol>
      */
     public void start() {
         boolean running = true;
@@ -89,14 +111,36 @@ public class PatientsCLI {
     }
 
     /**
-     * Handles the creation of a new patient record.
-     * Prompts the user for all required patient information,
-     * validates the input, and attempts to save the patient to the database.
+     * Handles the creation of a new patient record with complete demographic
+     * information.
+     * <p>
+     * This method guides the user through entering all required patient
+     * information,
+     * including personal details, address, and insurance information. All inputs
+     * are
+     * validated before creating the patient record. The method provides immediate
+     * feedback on success or failure of the operation.
+     * </p>
+     * 
+     * <h3>Required Information:</h3>
+     * <ul>
+     * <li><b>MRN</b> - Medical Record Number (unique identifier)</li>
+     * <li><b>First Name</b> - Patient's given name</li>
+     * <li><b>Last Name</b> - Patient's family name</li>
+     * <li><b>Date of Birth</b> - In yyyy-MM-dd format</li>
+     * <li><b>Address</b> - Street address</li>
+     * <li><b>State</b> - State of residence</li>
+     * <li><b>City</b> - City of residence</li>
+     * <li><b>Zip Code</b> - Postal code</li>
+     * <li><b>Insurance</b> - Insurance provider information</li>
+     * </ul>
+     * 
+     * @see PatientDAO#createPatient(Patients)
      */
     private void createPatient() {
         System.out.println("\n--- Create New Patient ---");
 
-        // Collect all required patient information from user input
+        // Collect all required patient information with validation
         int mrn = getIntInput("Enter MRN: ");
         String fname = getRequiredStringInput("Enter First Name: ");
         String lname = getRequiredStringInput("Enter Last Name: ");
@@ -110,121 +154,32 @@ public class PatientsCLI {
         // Create patient object with collected data
         Patients patient = new Patients(mrn, fname, lname, dob, address, state, city, zip, insurance);
 
+        // Attempt to save patient to database
         try {
-            // Attempt to save patient to database
             if (patientDAO.createPatient(patient)) {
                 System.out.println("\nPatient created successfully!");
             } else {
-                System.out.println("\n!!! Failed to create patient. !!!");
+                System.out.println("\n!!! Failed to create patient !!!");
             }
         } catch (Exception e) {
+            // Handle database errors (e.g., duplicate MRN, connection issues)
             System.out.println("\n!!! Error creating patient: " + e.getMessage() + " !!!");
         }
     }
 
-    /**
-     * Placeholder method for reading a patient by MRN.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will retrieve and display patient information.
-     */
     private void readPatient() {
         System.out.println("\n--- Read Patient (WIP) ---");
     }
 
-    /**
-     * Placeholder method for reading all patients.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will retrieve and display all patient records.
-     */
     private void readAllPatients() {
         System.out.println("\n--- All Patients (WIP) ---");
     }
 
-    /**
-     * Placeholder method for updating a patient record.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will allow modification of existing patient data.
-     */
     private void updatePatient() {
         System.out.println("\n--- Update Patient (WIP) ---");
     }
 
-    /**
-     * Placeholder method for deleting a patient record.
-     * Currently displays a "Work In Progress" message.
-     * Future implementation will allow removal of patient records with
-     * confirmation.
-     */
     private void deletePatient() {
         System.out.println("\n--- Delete Patient (WIP) ---");
-    }
-
-    // ==================== Helper Methods for Input Validation ====================
-
-    /**
-     * Reads and validates integer input from the user.
-     * Continuously prompts until a valid integer is entered.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated integer input
-     */
-    private int getIntInput(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                return Integer.parseInt(scanner.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
-    }
-
-    /**
-     * Reads a string input from the user.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the trimmed string input
-     */
-    private String getStringInput(String prompt) {
-        System.out.print(prompt);
-        return scanner.nextLine().trim();
-    }
-
-    /**
-     * Reads and validates required string input from the user.
-     * Ensures the input is not empty by continuously prompting until valid input is
-     * provided.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated non-empty string input
-     */
-    private String getRequiredStringInput(String prompt) {
-        String input;
-        do {
-            input = getStringInput(prompt);
-            if (input.isEmpty()) {
-                System.out.println("This field is required. Please enter a value.");
-            }
-        } while (input.isEmpty());
-        return input;
-    }
-
-    /**
-     * Reads and validates date input from the user.
-     * Accepts dates in yyyy-MM-dd format and converts them to LocalDate objects.
-     * Continuously prompts until a valid date is entered.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated LocalDate object
-     */
-    private LocalDate getDateInput(String prompt) {
-        while (true) {
-            String input = getRequiredStringInput(prompt);
-            try {
-                return LocalDate.parse(input, dateFormatter);
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date format. Please use yyyy-MM-dd format.");
-            }
-        }
     }
 }

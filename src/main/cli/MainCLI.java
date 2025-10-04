@@ -1,69 +1,119 @@
 package main.cli;
 
-import java.util.Scanner;
-
 import main.util.Database;
 
 /**
  * Main Command Line Interface for the Electronic Medical Records (EMR)
  * Management System.
- * This class provides the primary navigation and menu system for the
- * application,
- * allowing users to choose which entity type they want to manage.
+ * <p>
+ * This class serves as the primary entry point for user interaction in the EMR
+ * application.
+ * It provides a hierarchical menu system that allows users to navigate to
+ * different
+ * management modules for Patients, Patient History, and Medical Procedures.
+ * </p>
+ * 
+ * <h3>Available Modules:</h3>
+ * <ul>
+ * <li><b>Patients</b> - Manage patient demographic and insurance
+ * information</li>
+ * <li><b>Patient History</b> - Track medical procedures performed on
+ * patients</li>
+ * <li><b>Procedures</b> - Maintain catalog of available medical procedures</li>
+ * </ul>
+ * 
+ * <h3>Navigation Flow:</h3>
+ * 
+ * <pre>
+ * Main Menu
+ *  ├─ Patients Management (PatientsCLI)
+ *  ├─ Patient History Management (PatientHistoryCLI)
+ *  ├─ Procedures Management (ProceduresCLI)
+ *  └─ Exit
+ * </pre>
  *
- * The main CLI serves as the entry point for user interaction and delegates
- * specific entity management to specialized CLI classes (PatientsCLI,
- * PatientHistoryCLI, ProceduresCLI).
+ * @see PatientsCLI
+ * @see PatientHistoryCLI
+ * @see ProceduresCLI
  */
-public class MainCLI {
+public class MainCLI extends CLI {
 
-    /** Database connection utility instance */
-    private Database db;
+    /** Welcome message displayed when the application starts */
+    private static final String WELCOME_MESSAGE = "=== Welcome to EMR Management System ===\n";
 
-    /** Scanner for reading user input from console */
-    private Scanner scanner;
+    /** Goodbye message displayed when user exits the application */
+    private static final String GOODBYE_MESSAGE = "\nThank you for using EMR Management System. Goodbye!\n";
+
+    /** Database instance for passing to sub-modules */
+    private final Database db;
 
     /**
      * Constructs a new MainCLI with the specified database connection.
-     *
-     * @param db the Database utility instance for managing connections
+     * <p>
+     * The database connection is stored and passed to sub-modules as needed.
+     * </p>
+     * 
+     * @param db the Database instance for database operations
+     * @throws NullPointerException if db is null
      */
     public MainCLI(Database db) {
+        super();
         this.db = db;
-        this.scanner = new Scanner(System.in);
     }
 
     /**
-     * Starts the main CLI interface and displays the welcome message.
-     * This method runs the main application loop, presenting the menu
-     * and handling user choices until the user chooses to exit.
+     * Starts the main CLI interface and enters the primary interaction loop.
+     * <p>
+     * This method displays a welcome message and presents the main menu in a loop
+     * until the user chooses to exit. It handles user navigation to different
+     * management modules and manages the application's main execution flow.
+     * </p>
+     * 
+     * <h3>Menu Options:</h3>
+     * <ol>
+     * <li>Patients - Opens patient management interface</li>
+     * <li>Patient History - Opens patient history management interface</li>
+     * <li>Procedures - Opens procedures management interface</li>
+     * <li>Exit - Closes the application</li>
+     * </ol>
+     * 
+     * @see PatientsCLI#start()
+     * @see PatientHistoryCLI#start()
+     * @see ProceduresCLI#start()
      */
+    @Override
     public void start() {
-        // Display welcome message
-        System.out.println("=== Welcome to EMR Management System ===\n");
+        // Display welcome message to user
+        System.out.println(WELCOME_MESSAGE);
 
+        // Main application loop
         boolean running = true;
         while (running) {
-            // Display main menu and get user choice
+            // Display menu and get user's choice
             showMainMenu();
             int choice = getIntInput("Enter your choice: ");
 
-            // Process user choice
+            // Process user's menu selection
             switch (choice) {
                 case 1:
-                    managePatients();
+                    // Navigate to Patients management
+                    new PatientsCLI(db).start();
                     break;
                 case 2:
-                    managePatientHistory();
+                    // Navigate to Patient History management
+                    new PatientHistoryCLI(db).start();
                     break;
                 case 3:
-                    manageProcedures();
+                    // Navigate to Procedures management
+                    new ProceduresCLI(db).start();
                     break;
                 case 4:
+                    // Exit application
                     running = false;
-                    System.out.println("\nThank you for using EMR Management System. Goodbye!\n");
+                    System.out.println(GOODBYE_MESSAGE);
                     break;
                 default:
+                    // Invalid choice - inform user
                     System.out.println("Invalid choice. Please try again.");
             }
         }
@@ -71,66 +121,17 @@ public class MainCLI {
 
     /**
      * Displays the main menu options to the user.
-     * Shows available entity types that can be managed and the exit option.
+     * <p>
+     * This method prints a formatted menu showing all available management modules
+     * and the exit option. Called once per iteration of the main loop.
+     * </p>
      */
     private void showMainMenu() {
-        System.out.println("=== EMR Management System ===");
-        System.out.println("Choose an entity to manage:");
+        System.out.println("\n=== EMR Management System ===");
         System.out.println("1. Patients");
         System.out.println("2. Patient History");
         System.out.println("3. Procedures");
         System.out.println("4. Exit");
         System.out.println("=============================");
-    }
-
-    /**
-     * Launches the Patients management interface.
-     * Creates and starts a PatientsCLI instance to handle patient-related
-     * operations.
-     */
-    private void managePatients() {
-        System.out.println("\n--- Managing Patients ---");
-        PatientsCLI patientCLI = new PatientsCLI(db);
-        patientCLI.start();
-    }
-
-    /**
-     * Launches the Patient History management interface.
-     * Creates and starts a PatientHistoryCLI instance to handle patient history
-     * operations.
-     */
-    private void managePatientHistory() {
-        System.out.println("\n--- Managing Patient History ---");
-        PatientHistoryCLI patientHistoryCLI = new PatientHistoryCLI(db);
-        patientHistoryCLI.start();
-    }
-
-    /**
-     * Launches the Procedures management interface.
-     * Creates and starts a ProceduresCLI instance to handle procedure-related
-     * operations.
-     */
-    private void manageProcedures() {
-        System.out.println("\n--- Managing Procedures ---");
-        ProceduresCLI proceduresCLI = new ProceduresCLI(db);
-        proceduresCLI.start();
-    }
-
-    /**
-     * Reads and validates integer input from the user.
-     * Continuously prompts the user until a valid integer is entered.
-     *
-     * @param prompt the message to display when asking for input
-     * @return the validated integer input
-     */
-    private int getIntInput(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                return Integer.parseInt(scanner.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
     }
 }
