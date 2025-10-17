@@ -12,7 +12,7 @@ import main.util.Database;
  * different
  * management modules for Patients, Patient History, and Medical Procedures.
  * </p>
- * 
+ *
  * <h3>Available Modules:</h3>
  * <ul>
  * <li><b>Patients</b> - Manage patient demographic and insurance
@@ -22,7 +22,7 @@ import main.util.Database;
  * <li><b>Procedures</b> - Maintain catalog of available medical procedures</li>
  * <li><b>Doctors</b> - Manage doctor information</li>
  * </ul>
- * 
+ *
  * <h3>Navigation Flow:</h3>
  *
  * <pre>
@@ -42,10 +42,12 @@ import main.util.Database;
 public class MainCLI extends CLI {
 
     /** Welcome message displayed when the application starts */
-    private static final String WELCOME_MESSAGE = "=== Welcome to EMR Management System ===\n";
+    private static final String WELCOME_MESSAGE =
+        "=== Welcome to EMR Management System ===\n";
 
     /** Goodbye message displayed when user exits the application */
-    private static final String GOODBYE_MESSAGE = "\nThank you for using EMR Management System. Goodbye!\n";
+    private static final String GOODBYE_MESSAGE =
+        "\nThank you for using EMR Management System. Goodbye!\n";
 
     /** Database instance for passing to sub-modules */
     private final Database db;
@@ -55,7 +57,7 @@ public class MainCLI extends CLI {
      * <p>
      * The database connection is stored and passed to sub-modules as needed.
      * </p>
-     * 
+     *
      * @param db the Database instance for database operations
      * @throws NullPointerException if db is null
      */
@@ -71,7 +73,7 @@ public class MainCLI extends CLI {
      * until the user chooses to exit. It handles user navigation to different
      * management modules and manages the application's main execution flow.
      * </p>
-     * 
+     *
      * <h3>Menu Options:</h3>
      * <ol>
      * <li>Patients - Opens patient management interface</li>
@@ -80,7 +82,7 @@ public class MainCLI extends CLI {
      * <li>Doctors - Opens doctors management interface</li>
      * <li>Exit - Closes the application</li>
      * </ol>
-     * 
+     *
      * @see PatientsCLI#start()
      * @see PatientHistoryCLI#start()
      * @see ProceduresCLI#start()
