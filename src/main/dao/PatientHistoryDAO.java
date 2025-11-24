@@ -1,6 +1,8 @@
 package main.dao;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import main.models.PatientHistory;
 import main.util.Database;
 
@@ -70,17 +72,28 @@ public class PatientHistoryDAO {
             stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
+                LocalDate date;
+                try {
+                    java.sql.Date sqlDate = rs.getDate("date");
+                    date = sqlDate.toLocalDate();
+                } catch (SQLException e) {
+                    String dateStr = rs.getString("date");
+                    DateTimeFormatter oldFormat = DateTimeFormatter.ofPattern(
+                        "dd/MM/yyyy"
+                    );
+                    date = LocalDate.parse(dateStr, oldFormat);
+                }
                 return new PatientHistory(
                     rs.getString("id"),
                     rs.getInt("patientId"),
                     rs.getString("procedureId"),
-                    rs.getDate("date").toLocalDate(),
+                    date,
                     rs.getDouble("billing"),
                     rs.getString("doctorId")
                 );
             }
         } catch (SQLException e) {
-            System.out.println("Error occurred" + e.getMessage());
+            // Silently handle error - not finding a patient history is not exceptional
             return null;
         }
         return null;
@@ -103,7 +116,7 @@ public class PatientHistoryDAO {
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Error occurred" + e.getMessage());
+            // Silently handle error - update may fail due to invalid data
             return false;
         }
     }

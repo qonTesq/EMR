@@ -2,7 +2,6 @@ package main.cli;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import main.dao.PatientDAO;
 import main.models.Patients;
 import main.util.Database;
@@ -191,70 +190,76 @@ public class PatientsCLI extends CLI {
     }
 
     private void updatePatient() {
-        // me sk user t oinput doctor Id to update doctor table -- modify doctor CLI
         System.out.println("\n--- Update Patient ---");
-        System.out.println("Enter Patient MRN:");
 
-        int mrn = scanner.nextInt();
-        scanner.nextLine();
+        int mrn = getIntInput("Enter Patient MRN: ");
         Patients patient = patientDAO.getPatientMRN(mrn);
 
         if (patient == null) {
             System.out.println("Patient not found");
             return;
         }
+
         String input;
-        System.out.println("Update patient last name");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update last name (leave empty to skip): ");
         if (!input.isEmpty()) {
             patient.setLname(input);
         }
-        System.out.println("Update patient first name");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update first name (leave empty to skip): ");
         if (!input.isEmpty()) {
             patient.setFname(input);
         }
-        System.out.println("Update Date of Birth");
-        input = scanner.nextLine();
+
+        input = getStringInput(
+            "Update Date of Birth (yyyy-MM-dd, leave empty to skip): "
+        );
         if (!input.isEmpty()) {
             try {
-                DateTimeFormatter format = DateTimeFormatter.ofPattern(
-                    "dd/MM/yyyy"
-                );
-                LocalDate dob = LocalDate.parse(input, format);
+                LocalDate dob = LocalDate.parse(input, DATE_FORMATTER);
                 patient.setDob(dob);
             } catch (Exception e) {
-                System.out.println("invalid DOB");
+                System.out.println(
+                    "Invalid date format. Please use yyyy-MM-dd format."
+                );
                 return;
             }
         }
-        System.out.println("Update Address");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update Address (leave empty to skip): ");
         if (!input.isEmpty()) {
             patient.setAddress(input);
         }
-        System.out.println("Update State");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update State (leave empty to skip): ");
         if (!input.isEmpty()) {
             patient.setState(input);
         }
-        System.out.println("Update City");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update City (leave empty to skip): ");
         if (!input.isEmpty()) {
             patient.setCity(input);
         }
-        System.out.println("Update ZipCode");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update ZipCode (leave empty to skip): ");
         if (!input.isEmpty()) {
-            patient.setZip(Integer.parseInt(input));
+            try {
+                patient.setZip(Integer.parseInt(input));
+            } catch (NumberFormatException e) {
+                System.out.println(
+                    "Invalid zip code. Please enter a valid number."
+                );
+                return;
+            }
         }
-        System.out.println("Update email");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update email (leave empty to skip): ");
         if (!input.isEmpty()) {
             patient.setEmail(input);
         }
-        System.out.println("Update Insurance");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update Insurance (leave empty to skip): ");
         if (!input.isEmpty()) {
             patient.setInsurance(input);
         }

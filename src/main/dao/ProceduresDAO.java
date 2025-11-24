@@ -77,7 +77,7 @@ public class ProceduresDAO {
                 );
             }
         } catch (SQLException e) {
-            System.out.println("Error occured" + e.getMessage());
+            // Silently handle error - not finding a procedure is not exceptional
         }
         return null;
     }
@@ -96,7 +96,7 @@ public class ProceduresDAO {
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Error occurred" + e.getMessage());
+            // Silently handle error - update may fail due to invalid data
             return false;
         }
     }

@@ -103,10 +103,9 @@ public class DoctorsCLI extends CLI {
     }
 
     private void updateDoctor() {
-        // if string does not contain Dr then error -- inputs dr name that corresponds to id then overwrite
         System.out.println("\n--- Update Doctor ---");
-        System.out.println("Enter Doctor ID: ");
-        String id = scanner.nextLine();
+
+        String id = getRequiredStringInput("Enter Doctor ID: ");
         if (!id.startsWith("DR")) {
             System.out.println("Invalid ID.");
             return;
@@ -116,12 +115,12 @@ public class DoctorsCLI extends CLI {
         try {
             doctor = doctorDAO.getDoctorID(id);
         } catch (SQLException e) {
-            System.out.println("Error fetching records" + e.getMessage());
+            System.out.println("Error fetching records: " + e.getMessage());
             return;
         }
 
         if (doctor == null) {
-            System.out.println("Error. Doctor not found");
+            System.out.println("Doctor not found");
             return;
         }
 

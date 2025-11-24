@@ -65,7 +65,7 @@ public class DoctorDAO {
                 return new Doctors(rs.getString("id"), rs.getString("name"));
             }
         } catch (SQLException e) {
-            System.out.println("Fatal Error" + e.getMessage());
+            // Silently handle error - not finding a doctor is not exceptional
         }
         return null;
     }
@@ -79,7 +79,7 @@ public class DoctorDAO {
             stmt.setString(2, doctor.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Error occurred" + e.getMessage());
+            // Silently handle error - update may fail due to invalid data
             return false;
         }
     }

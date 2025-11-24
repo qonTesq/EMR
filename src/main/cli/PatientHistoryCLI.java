@@ -2,7 +2,6 @@ package main.cli;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import main.dao.PatientHistoryDAO;
 import main.models.PatientHistory;
 import main.util.Database;
@@ -197,9 +196,9 @@ public class PatientHistoryCLI extends CLI {
     }
 
     private void updatePatientHistory() {
-        System.out.println("\n--- Update Patient History---");
-        System.out.println("Enter ID: ");
-        String patientHistoryID = scanner.nextLine();
+        System.out.println("\n--- Update Patient History ---");
+
+        String patientHistoryID = getRequiredStringInput("Enter History ID: ");
         PatientHistory history;
         try {
             history = patientHistoryDAO.getPatientHistoryID(patientHistoryID);
@@ -209,42 +208,57 @@ public class PatientHistoryCLI extends CLI {
         }
 
         if (history == null) {
-            System.out.println("Error Record not found");
+            System.out.println("Record not found");
             return;
         }
 
         String input;
-        System.out.println("Update patient ID");
-        input = scanner.nextLine();
-        if (!input.isEmpty()) {
-            history.setPatientId(Integer.parseInt(input));
-        }
-        System.out.println("Update procedure ID");
-        input = scanner.nextLine();
-        if (!input.isEmpty()) {
-            history.setProcedureId(input);
-        }
-        System.out.println("Update Date of Procedure");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update Patient ID (leave empty to skip): ");
         if (!input.isEmpty()) {
             try {
-                DateTimeFormatter format = DateTimeFormatter.ofPattern(
-                    "dd/MM/yyyy"
+                history.setPatientId(Integer.parseInt(input));
+            } catch (NumberFormatException e) {
+                System.out.println(
+                    "Invalid Patient ID. Please enter a valid number."
                 );
-                LocalDate date = LocalDate.parse(input, format);
-                history.setDate(date);
-            } catch (Exception e) {
-                System.out.println("invalid Date");
                 return;
             }
         }
-        System.out.println("Update Billing");
-        input = scanner.nextLine();
+
+        input = getStringInput("Update Procedure ID (leave empty to skip): ");
         if (!input.isEmpty()) {
-            history.setBilling(Double.parseDouble(input));
+            history.setProcedureId(input);
         }
-        System.out.println("Update Doctor ID");
-        input = scanner.nextLine();
+
+        input = getStringInput(
+            "Update Date of Procedure (yyyy-MM-dd, leave empty to skip): "
+        );
+        if (!input.isEmpty()) {
+            try {
+                LocalDate date = LocalDate.parse(input, DATE_FORMATTER);
+                history.setDate(date);
+            } catch (Exception e) {
+                System.out.println(
+                    "Invalid date format. Please use yyyy-MM-dd format."
+                );
+                return;
+            }
+        }
+
+        input = getStringInput("Update Billing Amount (leave empty to skip): ");
+        if (!input.isEmpty()) {
+            try {
+                history.setBilling(Double.parseDouble(input));
+            } catch (NumberFormatException e) {
+                System.out.println(
+                    "Invalid billing amount. Please enter a valid number."
+                );
+                return;
+            }
+        }
+
+        input = getStringInput("Update Doctor ID (leave empty to skip): ");
         if (!input.isEmpty()) {
             history.setDoctorId(input);
         }
@@ -252,12 +266,12 @@ public class PatientHistoryCLI extends CLI {
         try {
             boolean update = patientHistoryDAO.updatePatientHistory(history);
             if (update) {
-                System.out.println("Patient History  has been updated");
+                System.out.println("Patient history has been updated");
             } else {
                 System.out.println("Update failed");
             }
         } catch (SQLException e) {
-            System.out.println("Update failed" + e.getMessage());
+            System.out.println("Update failed: " + e.getMessage());
         }
     }
 

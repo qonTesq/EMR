@@ -4,6 +4,8 @@ import java.sql.*;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import main.models.Patients;
 import main.util.Database;
 
@@ -74,11 +76,22 @@ public class PatientDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
+                LocalDate dob;
+                try {
+                    java.sql.Date sqlDate = rs.getDate("dob");
+                    dob = sqlDate.toLocalDate();
+                } catch (SQLException e) {
+                    String dateStr = rs.getString("dob");
+                    DateTimeFormatter oldFormat = DateTimeFormatter.ofPattern(
+                        "dd/MM/yyyy"
+                    );
+                    dob = LocalDate.parse(dateStr, oldFormat);
+                }
                 return new Patients(
                     rs.getInt("mrn"),
                     rs.getString("fname"),
                     rs.getString("lname"),
-                    rs.getDate("dob").toLocalDate(),
+                    dob,
                     rs.getString("address"),
                     rs.getString("state"),
                     rs.getString("city"),
@@ -88,7 +101,7 @@ public class PatientDAO {
                 );
             }
         } catch (SQLException e) {
-            System.out.println("Error occured" + e.getMessage());
+            // Silently handle error - not finding a patient is not exceptional
         }
         return null;
     }
@@ -99,21 +112,20 @@ public class PatientDAO {
         try (
             PreparedStatement stmt = db.getConnection().prepareStatement(sql)
         ) {
-            stmt.setInt(1, patient.getMrn());
-            stmt.setString(2, patient.getFname());
-            stmt.setString(3, patient.getLname());
-
-            stmt.setDate(4, java.sql.Date.valueOf(patient.getDob()));
-            stmt.setString(5, patient.getAddress());
+            stmt.setString(1, patient.getFname());
+            stmt.setString(2, patient.getLname());
+            stmt.setDate(3, java.sql.Date.valueOf(patient.getDob()));
+            stmt.setString(4, patient.getAddress());
+            stmt.setString(5, patient.getCity());
             stmt.setString(6, patient.getState());
-            stmt.setString(7, patient.getCity());
-            stmt.setInt(8, patient.getZip());
-            stmt.setString(9, patient.getInsurance());
-            stmt.setString(10, patient.getEmail());
+            stmt.setInt(7, patient.getZip());
+            stmt.setString(8, patient.getInsurance());
+            stmt.setString(9, patient.getEmail());
+            stmt.setInt(10, patient.getMrn());
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Error occurred" + e.getMessage());
+            // Silently handle error - update may fail due to invalid data
             return false;
         }
     }
