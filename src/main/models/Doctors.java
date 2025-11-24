@@ -15,6 +15,8 @@ public class Doctors {
     /** Doctor's full name */
     private String name;
 
+    public Doctors getId;
+
     /**
      * Constructs a new Doctors object with all required fields.
      *

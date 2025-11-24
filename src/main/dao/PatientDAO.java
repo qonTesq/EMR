@@ -2,8 +2,10 @@ package main.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.sql.Date;
-
+import java.sql.*;
 import main.models.Patients;
 import main.util.Database;
 
@@ -60,5 +62,55 @@ public class PatientDAO {
             // Execute the insert and return success status
             return stmt.executeUpdate() > 0;
         }
+    }
+    public Patients getPatientMRN (int mrn){
+        String sql =  "SELECT * FROM patients WHERE mrn = ?";
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
+            stmt.setInt(1,mrn);
+            ResultSet rs = stmt.executeQuery();
+
+            if(rs.next()){
+                return new Patients(
+                    rs.getInt("mrn"),
+                    rs.getString("fname"),
+                    rs.getString("lname"),
+                    rs.getDate("dob").toLocalDate(),
+                    rs.getString("address"),
+                    rs.getString("state"),
+                    rs.getString("city"),
+                    rs.getInt("zip"),
+                    rs.getString("insurance"),
+                    rs.getString("email")
+                   
+        );
+        
+    }
+     } catch(SQLException e){
+                System.out.println("Error occured" + e.getMessage());
+            }
+            return null;
+        }
+    public boolean updatePatient(Patients patient) throws SQLException{
+        String sql = "UPDATE patients SET fname = ?, lname = ?, dob = ?, address = ?, city = ?, state =?, zip =?, insurance = ?, email =? WHERE mrn = ?";
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
+
+        stmt.setInt(1, patient.getMrn());
+        stmt.setString(2, patient.getFname());
+        stmt.setString(3, patient.getLname());
+    
+        stmt.setDate(4, java.sql.Date.valueOf(patient.getDob()));
+        stmt.setString(5,patient.getAddress());
+        stmt.setString(6,patient.getState());
+        stmt.setString(7, patient.getCity());
+        stmt.setInt(8,patient.getZip());
+        stmt.setString(9,patient.getInsurance());
+        stmt.setString(10,patient.getEmail());
+
+        return stmt.executeUpdate()>0;
+    }catch(SQLException e){
+        System.out.println("Error occurred" + e.getMessage());
+        return false;
+    }
+    
     }
 }

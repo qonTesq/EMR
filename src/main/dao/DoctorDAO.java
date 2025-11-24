@@ -52,4 +52,32 @@ public class DoctorDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+    public Doctors getDoctorID( String id) throws SQLException{
+        String sql = "SELECT * FROM doctors WHERE id = ?";
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
+            stmt.setString(1, id);
+            var rs = stmt.executeQuery();
+            if(rs.next()){
+                return new Doctors(
+                    rs.getString("id"), rs.getString("name"));
+
+            }
+        } catch (SQLException e){
+            System.out.println("Fatal Error" + e.getMessage());
+              }
+              return null;
+}
+public boolean updateDoctor(Doctors doctor){
+    String sql = "UPDATE doctors SET name = ? WHERE id = ?";
+    try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
+        stmt.setString(1,doctor.getName());
+        stmt.setString(2,doctor.getId());
+        return stmt.executeUpdate()>0;
+    } catch(SQLException e){
+        System.out.println("Error occurred" + e.getMessage());
+        return false;
+
+    }
+
+}
 }

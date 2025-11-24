@@ -1,9 +1,8 @@
 package main.dao;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Date;
-
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import main.models.PatientHistory;
 import main.util.Database;
 
@@ -59,5 +58,47 @@ public class PatientHistoryDAO {
             // Execute the insert and return success status
             return stmt.executeUpdate() > 0;
         }
+    }
+    public PatientHistory getPatientHistoryID(String id) throws SQLException{
+        String sql = "SELECT * FROM patient_history WHERE id = ?";
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
+            stmt.setString (1,id);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                return new PatientHistory(
+                    rs.getString("id"),
+                    rs.getInt("patientId"),
+                    rs.getString("procedureId"),
+                    rs.getDate("date").toLocalDate(),
+                    rs.getDouble("billing"),
+                    rs.getString("doctorId")
+                );
+
+
+
+                }
+            }catch(SQLException e){
+        System.out.println("Error occurred" + e.getMessage());
+        return null;
+    }
+            return null;
+        }
+    
+    public boolean updatePatientHistory(PatientHistory patientHistory) throws SQLException{
+        String sql = "UPDATE patient_history SET id = ?, patientId = ?, procedureId = ?, date = ?, billing = ?, doctorId = ? WHERE id = ?";
+         try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
+            stmt.setString(1, patientHistory.getId());
+            stmt.setInt(2, patientHistory.getPatientId());
+            stmt.setString(3,patientHistory.getProcedureId());
+            stmt.setDate(4, Date.valueOf(patientHistory.getDate()));
+            stmt.setDouble(5,patientHistory.getBilling());
+            stmt.setString(6,patientHistory.getDoctorId());
+            stmt.setString(7, patientHistory.getId());
+
+                return stmt.executeUpdate()>0;
+    }catch(SQLException e){
+        System.out.println("Error occurred" + e.getMessage());
+        return false;
+    }
     }
 }

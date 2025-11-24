@@ -1,5 +1,7 @@
 package main.cli;
 
+import java.sql.SQLException;
+
 import main.dao.ProceduresDAO;
 import main.models.Procedures;
 import main.util.Database;
@@ -183,8 +185,53 @@ public class ProceduresCLI extends CLI {
     }
 
     private void updateProcedure() {
-        System.out.println("\n--- Update Procedure (WIP) ---");
+        System.out.println("\n--- Update Procedure ---");
+        System.out.println("Enter ID: ");
+        String id = scanner.nextLine();
+        
+        Procedures procedures = proceduresDAO.getProcedureID(id);
+
+        if(procedures == null){
+            System.out.println("Error record not found");
+            return;
+        }
+        String input;
+      
+        
+           System.out.println("Update procedure name");
+         input = scanner.nextLine();
+        if(!input.isEmpty()){
+            procedures.setName(input);
+        }
+    
+        System.out.println("Update procedure description");
+         input = scanner.nextLine();
+        if(!input.isEmpty()){
+            procedures.setDescription(input);
+        }
+      System.out.println("Update procedure duration");
+         input = scanner.nextLine();
+        if(!input.isEmpty()){
+            procedures.setDuration(Integer.parseInt(input));
+        }
+        System.out.println("Update procedure doctorID");
+         input = scanner.nextLine();
+        if(!input.isEmpty()){
+            procedures.setDoctorId(input);
+        }
+    try{
+    boolean update = proceduresDAO.updateProcedure(procedures);
+    if(update){
+
+        System.out.println("Patient information has been updated");
+    
+    }else{
+        System.out.println("Update failed");
     }
+}catch(SQLException e){
+    System.out.println("Error Occurred" + e.getMessage());
+}
+}
 
     private void deleteProcedure() {
         System.out.println("\n--- Delete Procedure (WIP) ---");

@@ -1,6 +1,8 @@
 package main.cli;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import main.dao.PatientHistoryDAO;
 import main.models.PatientHistory;
@@ -187,7 +189,81 @@ public class PatientHistoryCLI extends CLI {
     }
 
     private void updatePatientHistory() {
-        System.out.println("\n--- Update Patient History (WIP) ---");
+        System.out.println("\n--- Update Patient History---");
+        System.out.println("Enter ID: ");
+        String patientHistoryID = scanner.nextLine();
+        PatientHistory history;
+        try{
+            history = patientHistoryDAO.getPatientHistoryID(patientHistoryID);
+        } catch (SQLException e) {
+        System.out.println("Error retrieving record: " + e.getMessage());
+        return;
+    }
+
+
+        if(history == null){
+            System.out.println("Error Record not found");
+            return;
+        }
+        
+        String input;
+        System.out.println("Update patient ID");
+         input = scanner.nextLine();
+        if(!input.isEmpty()){
+            history.setPatientId(Integer.parseInt(input));
+        }
+        System.out.println("Update procedure ID");
+         input = scanner.nextLine();
+        if(!input.isEmpty()){
+            history.setProcedureId(input);
+        }
+        System.out.println("Update Date of Procedure");
+         input = scanner.nextLine();
+        if(!input.isEmpty()){
+            try{
+                DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate date = LocalDate.parse(input,format);
+                history.setDate(date);
+            }catch(Exception e){
+                System.out.println("invalid Date");
+                return;
+            }
+            history.setDate(LocalDate.parse(input));
+        }
+        System.out.println("Update Billing");
+         input = scanner.nextLine();
+         if(!input.isEmpty()){
+            history.setBilling(Double.parseDouble(input));
+
+         }
+         System.out.println("Update Doctor ID");
+          input = scanner.nextLine();
+          if(!input.isEmpty()){
+            history.setDoctorId(input);
+          }
+          
+try{
+    boolean update = patientHistoryDAO.updatePatientHistory(history);
+    if(update){
+
+        System.out.println("Patient History  has been updated");
+    
+    }else{
+        System.out.println("Update failed");
+    }
+} catch(SQLException e){
+    System.out.println("Update failed" + e.getMessage());
+}
+    }
+
+
+
+       
+
+    
+
+    private void deletePatient() {
+
     }
 
     private void deletePatientHistory() {
