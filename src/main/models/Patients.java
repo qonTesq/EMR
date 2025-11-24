@@ -55,8 +55,18 @@ public class Patients {
      * @param insurance Patient's insurance information
      * @param email     Patient's email address
      */
-    public Patients(int mrn, String fname, String lname, LocalDate dob, String address, String state, String city,
-            int zip, String insurance, String email) {
+    public Patients(
+        int mrn,
+        String fname,
+        String lname,
+        LocalDate dob,
+        String address,
+        String state,
+        String city,
+        int zip,
+        String insurance,
+        String email
+    ) {
         this.mrn = mrn;
         this.fname = fname;
         this.lname = lname;
@@ -73,8 +83,7 @@ public class Patients {
      * Default constructor for creating an empty Patients object.
      * Used by frameworks and for object initialization before setting fields.
      */
-    public Patients() {
-    }
+    public Patients() {}
 
     /**
      * Gets the Medical Record Number.
@@ -264,9 +273,28 @@ public class Patients {
      */
     @Override
     public String toString() {
-        return "Patient MRN: " + mrn + ", Name: " + fname + " " + lname + ", DOB: " + dob + ", Address: " + address
-                + ", City: " + city + ", State: " + state + ", Zip: " + zip + ", Insurance: " + insurance + ", Email: "
-                + email;
+        return (
+            "Patient MRN: " +
+            mrn +
+            ", Name: " +
+            fname +
+            " " +
+            lname +
+            ", DOB: " +
+            dob +
+            ", Address: " +
+            address +
+            ", City: " +
+            city +
+            ", State: " +
+            state +
+            ", Zip: " +
+            zip +
+            ", Insurance: " +
+            insurance +
+            ", Email: " +
+            email
+        );
     }
 
     /**
@@ -278,10 +306,8 @@ public class Patients {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof Patients))
-            return false;
+        if (this == o) return true;
+        if (!(o instanceof Patients)) return false;
         Patients p = (Patients) o;
         return mrn == p.mrn;
     }

@@ -34,7 +34,13 @@ public class Procedures {
      * @param duration    Duration in minutes
      * @param doctorId    ID of the performing doctor
      */
-    public Procedures(String id, String name, String description, int duration, String doctorId) {
+    public Procedures(
+        String id,
+        String name,
+        String description,
+        int duration,
+        String doctorId
+    ) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -46,8 +52,7 @@ public class Procedures {
      * Default constructor for creating an empty Procedures object.
      * Used by frameworks and for object initialization before setting fields.
      */
-    public Procedures() {
-    }
+    public Procedures() {}
 
     /**
      * Gets the unique identifier for this procedure.
@@ -148,8 +153,18 @@ public class Procedures {
      */
     @Override
     public String toString() {
-        return "Procedure ID: " + id + ", Name: " + name + ", Description: " + description +
-                ", Duration: " + duration + " minutes, Doctor ID: " + doctorId;
+        return (
+            "Procedure ID: " +
+            id +
+            ", Name: " +
+            name +
+            ", Description: " +
+            description +
+            ", Duration: " +
+            duration +
+            " minutes, Doctor ID: " +
+            doctorId
+        );
     }
 
     /**
@@ -161,10 +176,8 @@ public class Procedures {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof Procedures))
-            return false;
+        if (this == o) return true;
+        if (!(o instanceof Procedures)) return false;
         Procedures p = (Procedures) o;
         return id != null && id.equals(p.id);
     }

@@ -2,7 +2,6 @@ package main.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
 import main.models.Doctors;
 import main.util.Database;
 
@@ -43,7 +42,9 @@ public class DoctorDAO {
         // SQL INSERT statement for creating a new doctor record
         String sql = "INSERT INTO doctors (id, name) VALUES (?, ?)";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
             // Set parameters in the prepared statement to prevent SQL injection
             stmt.setString(1, doctor.getId());
             stmt.setString(2, doctor.getName());
@@ -52,32 +53,34 @@ public class DoctorDAO {
             return stmt.executeUpdate() > 0;
         }
     }
-    public Doctors getDoctorID( String id) throws SQLException{
+
+    public Doctors getDoctorID(String id) throws SQLException {
         String sql = "SELECT * FROM doctors WHERE id = ?";
-        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
             stmt.setString(1, id);
             var rs = stmt.executeQuery();
-            if(rs.next()){
-                return new Doctors(
-                    rs.getString("id"), rs.getString("name"));
-
+            if (rs.next()) {
+                return new Doctors(rs.getString("id"), rs.getString("name"));
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println("Fatal Error" + e.getMessage());
-              }
-              return null;
-}
-public boolean updateDoctor(Doctors doctor){
-    String sql = "UPDATE doctors SET name = ? WHERE id = ?";
-    try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
-        stmt.setString(1,doctor.getName());
-        stmt.setString(2,doctor.getId());
-        return stmt.executeUpdate()>0;
-    } catch(SQLException e){
-        System.out.println("Error occurred" + e.getMessage());
-        return false;
-
+        }
+        return null;
     }
 
-}
+    public boolean updateDoctor(Doctors doctor) {
+        String sql = "UPDATE doctors SET name = ? WHERE id = ?";
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setString(1, doctor.getName());
+            stmt.setString(2, doctor.getId());
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error occurred" + e.getMessage());
+            return false;
+        }
+    }
 }

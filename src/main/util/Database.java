@@ -3,7 +3,6 @@ package main.util;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import main.config.DatabaseConfig;
 
 /**
@@ -15,7 +14,7 @@ import main.config.DatabaseConfig;
  * configuration
  * and follows the facade pattern to simplify database connection management.
  * </p>
- * 
+ *
  * <h3>Key Features:</h3>
  * <ul>
  * <li>Automatic connection establishment on instantiation</li>
@@ -23,9 +22,9 @@ import main.config.DatabaseConfig;
  * <li>Proper resource cleanup with close() method</li>
  * <li>Exception handling with meaningful error messages</li>
  * </ul>
- * 
+ *
  * <h3>Usage Example:</h3>
- * 
+ *
  * <pre>
  * // Using default configuration
  * Database db = new Database();
@@ -91,7 +90,7 @@ public class Database {
      * is printed to stdout. On failure, an error message is printed to stderr
      * and a RuntimeException is thrown.
      * </p>
-     * 
+     *
      * @throws RuntimeException if connection fails, wrapping the underlying
      *                          SQLException
      */
@@ -99,14 +98,17 @@ public class Database {
         try {
             // Establish JDBC connection using configuration parameters
             connection = DriverManager.getConnection(
-                    config.getUrl(),
-                    config.getUser(),
-                    config.getPassword());
+                config.getUrl(),
+                config.getUser(),
+                config.getPassword()
+            );
             // Confirm successful connection
             System.out.println("=== Connected to MySQL database ===\n");
         } catch (SQLException e) {
             // Log error and re-throw as unchecked exception for easier handling
-            System.err.println("!!! Connection failed: " + e.getMessage() + " !!!\n");
+            System.err.println(
+                "!!! Connection failed: " + e.getMessage() + " !!!\n"
+            );
             throw new RuntimeException("Failed to connect to database", e);
         }
     }
@@ -122,9 +124,9 @@ public class Database {
      * during closure.
      * Calling this method multiple times is safe - subsequent calls have no effect.
      * </p>
-     * 
+     *
      * <h3>Best Practice:</h3>
-     * 
+     *
      * <pre>
      * Database db = new Database();
      * try {
@@ -141,7 +143,9 @@ public class Database {
                 System.out.println("=== Database connection closed ===\n");
             } catch (SQLException e) {
                 // Log error but don't throw - cleanup should not fail the application
-                System.err.println("!!! Error closing connection: " + e.getMessage() + " !!!\n");
+                System.err.println(
+                    "!!! Error closing connection: " + e.getMessage() + " !!!\n"
+                );
             }
         }
     }
@@ -153,7 +157,7 @@ public class Database {
      * which can be used by DAO classes to create PreparedStatements and
      * execute SQL queries.
      * </p>
-     * 
+     *
      * @return the active JDBC Connection object, or null if connection was closed
      */
     public Connection getConnection() {

@@ -32,8 +32,7 @@ public class Doctors {
      * Default constructor for creating an empty Doctors object.
      * Used by frameworks and for object initialization before setting fields.
      */
-    public Doctors() {
-    }
+    public Doctors() {}
 
     /**
      * Gets the unique identifier for this doctor.
@@ -91,10 +90,8 @@ public class Doctors {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof Doctors))
-            return false;
+        if (this == o) return true;
+        if (!(o instanceof Doctors)) return false;
         Doctors d = (Doctors) o;
         return id == d.id;
     }

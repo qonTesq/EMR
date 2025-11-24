@@ -1,11 +1,11 @@
 package main.cli;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
 import main.dao.PatientDAO;
 import main.models.Patients;
 import main.util.Database;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Command Line Interface for managing patient records in the EMR system.
@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
  * CRUD (Create, Read, Update, Delete) operations on patient data. It handles
  * patient demographic information, contact details, and insurance information.
  * </p>
- * 
+ *
  * <h3>Features:</h3>
  * <ul>
  * <li>Create new patient records with complete demographic information</li>
@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
  * <li>Update existing patient information</li>
  * <li>Delete patient records</li>
  * </ul>
- * 
+ *
  * @see PatientDAO
  * @see Patients
  */
@@ -37,7 +37,7 @@ public class PatientsCLI extends CLI {
      * <p>
      * Initializes the patient data access object for database operations.
      * </p>
-     * 
+     *
      * @param db the Database instance for database operations
      * @throws NullPointerException if db is null
      */
@@ -53,7 +53,7 @@ public class PatientsCLI extends CLI {
      * until the user chooses to return to the main menu. Each menu option delegates
      * to a specific method for handling that operation.
      * </p>
-     * 
+     *
      * <h3>Menu Options:</h3>
      * <ol>
      * <li>Create Patient - Add a new patient record</li>
@@ -122,7 +122,7 @@ public class PatientsCLI extends CLI {
      * validated before creating the patient record. The method provides immediate
      * feedback on success or failure of the operation.
      * </p>
-     * 
+     *
      * <h3>Required Information:</h3>
      * <ul>
      * <li><b>MRN</b> - Medical Record Number (unique identifier)</li>
@@ -135,7 +135,7 @@ public class PatientsCLI extends CLI {
      * <li><b>Zip Code</b> - Postal code</li>
      * <li><b>Insurance</b> - Insurance provider information</li>
      * </ul>
-     * 
+     *
      * @see PatientDAO#createPatient(Patients)
      */
     private void createPatient() {
@@ -154,7 +154,18 @@ public class PatientsCLI extends CLI {
         String email = getRequiredStringInput("Enter Email: ");
 
         // Create patient object with collected data
-        Patients patient = new Patients(mrn, fname, lname, dob, address, state, city, zip, insurance, email);
+        Patients patient = new Patients(
+            mrn,
+            fname,
+            lname,
+            dob,
+            address,
+            state,
+            city,
+            zip,
+            insurance,
+            email
+        );
 
         // Attempt to save patient to database
         try {
@@ -165,7 +176,9 @@ public class PatientsCLI extends CLI {
             }
         } catch (Exception e) {
             // Handle database errors (e.g., duplicate MRN, connection issues)
-            System.out.println("\n!!! Error creating patient: " + e.getMessage() + " !!!");
+            System.out.println(
+                "\n!!! Error creating patient: " + e.getMessage() + " !!!"
+            );
         }
     }
 
@@ -177,90 +190,86 @@ public class PatientsCLI extends CLI {
         System.out.println("\n--- All Patients (WIP) ---");
     }
 
-    private void updatePatient() { // me sk user t oinput doctor Id to update doctor table -- modify doctor CLI
+    private void updatePatient() {
+        // me sk user t oinput doctor Id to update doctor table -- modify doctor CLI
         System.out.println("\n--- Update Patient ---");
-        System.out.println("Enter Patient MRN:" );
-        
+        System.out.println("Enter Patient MRN:");
+
         int mrn = scanner.nextInt();
         scanner.nextLine();
         Patients patient = patientDAO.getPatientMRN(mrn);
 
-        if(patient == null){
+        if (patient == null) {
             System.out.println("Patient not found");
             return;
         }
         String input;
         System.out.println("Update patient last name");
-         input = scanner.nextLine();
-        if(!input.isEmpty()){
+        input = scanner.nextLine();
+        if (!input.isEmpty()) {
             patient.setLname(input);
         }
         System.out.println("Update patient first name");
-         input = scanner.nextLine();
-        if(!input.isEmpty()){
+        input = scanner.nextLine();
+        if (!input.isEmpty()) {
             patient.setFname(input);
         }
         System.out.println("Update Date of Birth");
-         input = scanner.nextLine();
-        if(!input.isEmpty()){
-            try{
-                DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate dob = LocalDate.parse(input,format);
+        input = scanner.nextLine();
+        if (!input.isEmpty()) {
+            try {
+                DateTimeFormatter format = DateTimeFormatter.ofPattern(
+                    "dd/MM/yyyy"
+                );
+                LocalDate dob = LocalDate.parse(input, format);
                 patient.setDob(dob);
-            }catch(Exception e){
+            } catch (Exception e) {
                 System.out.println("invalid DOB");
                 return;
             }
-            patient.setDob(LocalDate.parse(input));
         }
         System.out.println("Update Address");
-         input = scanner.nextLine();
-         if(!input.isEmpty()){
+        input = scanner.nextLine();
+        if (!input.isEmpty()) {
             patient.setAddress(input);
-
-         }
-         System.out.println("Update State");
-          input = scanner.nextLine();
-          if(!input.isEmpty()){
+        }
+        System.out.println("Update State");
+        input = scanner.nextLine();
+        if (!input.isEmpty()) {
             patient.setState(input);
-          }
-          System.out.println("Update City");
-           input = scanner.nextLine();
-           if(!input.isEmpty()){
+        }
+        System.out.println("Update City");
+        input = scanner.nextLine();
+        if (!input.isEmpty()) {
             patient.setCity(input);
+        }
+        System.out.println("Update ZipCode");
+        input = scanner.nextLine();
+        if (!input.isEmpty()) {
+            patient.setZip(Integer.parseInt(input));
+        }
+        System.out.println("Update email");
+        input = scanner.nextLine();
+        if (!input.isEmpty()) {
+            patient.setEmail(input);
+        }
+        System.out.println("Update Insurance");
+        input = scanner.nextLine();
+        if (!input.isEmpty()) {
+            patient.setInsurance(input);
+        }
 
-           }
-           System.out.println("Update ZipCode");
-            input = scanner.nextLine();
-            if(!input.isEmpty()){
-                patient.setZip(Integer.parseInt(input));
+        try {
+            boolean update = patientDAO.updatePatient(patient);
+            if (update) {
+                System.out.println("Patient information has been updated");
+            } else {
+                System.out.println("Update failed");
             }
-            System.out.println("Update email");
-             input = scanner.nextLine();
-             if(!input.isEmpty()){
-                patient.setEmail(input);
-             }
-             System.out.println("Update Insurance");
-              input = scanner.nextLine();
-              if(!input.isEmpty()){
-                patient.setInsurance(input);
-              }
-
-              boolean update = patientDAO.updatePatient(patient);
-    if(update){
-
-        System.out.println("Patient information has been updated");
-    
-    }else{
-        System.out.println("Update failed");
+        } catch (SQLException e) {
+            System.out.println("Error updating patient: " + e.getMessage());
+        }
     }
-}
-}
-
-
-       
-
-    
 
     private void deletePatient() {
         System.out.println("\n--- Delete Patient (WIP) ---");

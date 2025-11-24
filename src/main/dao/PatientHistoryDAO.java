@@ -1,8 +1,6 @@
 package main.dao;
 
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import main.models.PatientHistory;
 import main.util.Database;
 
@@ -42,11 +40,15 @@ public class PatientHistoryDAO {
      * @throws SQLException if a database access error occurs or the SQL statement
      *                      fails
      */
-    public boolean createPatientHistory(PatientHistory patientHistory) throws SQLException {
+    public boolean createPatientHistory(PatientHistory patientHistory)
+        throws SQLException {
         // SQL INSERT statement for creating a new patient history record
-        String sql = "INSERT INTO patient_history (id, patientId, procedureId, date, billing, doctorId) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql =
+            "INSERT INTO patient_history (id, patientId, procedureId, date, billing, doctorId) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
             // Set parameters in the prepared statement to prevent SQL injection
             stmt.setString(1, patientHistory.getId());
             stmt.setInt(2, patientHistory.getPatientId());
@@ -59,12 +61,15 @@ public class PatientHistoryDAO {
             return stmt.executeUpdate() > 0;
         }
     }
-    public PatientHistory getPatientHistoryID(String id) throws SQLException{
+
+    public PatientHistory getPatientHistoryID(String id) throws SQLException {
         String sql = "SELECT * FROM patient_history WHERE id = ?";
-        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
-            stmt.setString (1,id);
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 return new PatientHistory(
                     rs.getString("id"),
                     rs.getInt("patientId"),
@@ -73,32 +78,33 @@ public class PatientHistoryDAO {
                     rs.getDouble("billing"),
                     rs.getString("doctorId")
                 );
-
-
-
-                }
-            }catch(SQLException e){
-        System.out.println("Error occurred" + e.getMessage());
-        return null;
-    }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error occurred" + e.getMessage());
             return null;
         }
-    
-    public boolean updatePatientHistory(PatientHistory patientHistory) throws SQLException{
-        String sql = "UPDATE patient_history SET id = ?, patientId = ?, procedureId = ?, date = ?, billing = ?, doctorId = ? WHERE id = ?";
-         try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
+        return null;
+    }
+
+    public boolean updatePatientHistory(PatientHistory patientHistory)
+        throws SQLException {
+        String sql =
+            "UPDATE patient_history SET id = ?, patientId = ?, procedureId = ?, date = ?, billing = ?, doctorId = ? WHERE id = ?";
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
             stmt.setString(1, patientHistory.getId());
             stmt.setInt(2, patientHistory.getPatientId());
-            stmt.setString(3,patientHistory.getProcedureId());
+            stmt.setString(3, patientHistory.getProcedureId());
             stmt.setDate(4, Date.valueOf(patientHistory.getDate()));
-            stmt.setDouble(5,patientHistory.getBilling());
-            stmt.setString(6,patientHistory.getDoctorId());
+            stmt.setDouble(5, patientHistory.getBilling());
+            stmt.setString(6, patientHistory.getDoctorId());
             stmt.setString(7, patientHistory.getId());
 
-                return stmt.executeUpdate()>0;
-    }catch(SQLException e){
-        System.out.println("Error occurred" + e.getMessage());
-        return false;
-    }
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error occurred" + e.getMessage());
+            return false;
+        }
     }
 }

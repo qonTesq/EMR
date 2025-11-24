@@ -1,6 +1,6 @@
 package main.cli;
+
 import java.sql.SQLException;
-import java.util.*;
 import main.dao.DoctorDAO;
 import main.models.Doctors;
 import main.util.Database;
@@ -102,43 +102,39 @@ public class DoctorsCLI extends CLI {
         }
     }
 
-    private void updateDoctor(){ // if string does not contain Dr then error -- inputs dr name that corresponds to id then overwrite
+    private void updateDoctor() {
+        // if string does not contain Dr then error -- inputs dr name that corresponds to id then overwrite
         System.out.println("\n--- Update Doctor ---");
         System.out.println("Enter Doctor ID: ");
         String id = scanner.nextLine();
-        if(!id.startsWith("DR")){
+        if (!id.startsWith("DR")) {
             System.out.println("Invalid ID.");
             return;
         }
-       
-    
-    Doctors doctor;
-    try{ 
-        doctor = doctorDAO.getDoctorID(id);
-    } catch (SQLException e){
-        System.out.println("Error fetching records" + e.getMessage());
-        return;
-    }
 
-    if(doctor == null){
-        System.out.println("Error. Doctor not found");
-        return;
-    }
+        Doctors doctor;
+        try {
+            doctor = doctorDAO.getDoctorID(id);
+        } catch (SQLException e) {
+            System.out.println("Error fetching records" + e.getMessage());
+            return;
+        }
 
-    String updatedDoctor = getRequiredStringInput("Enter new doctor name: ");
-    doctor.setName(updatedDoctor);
+        if (doctor == null) {
+            System.out.println("Error. Doctor not found");
+            return;
+        }
 
-     boolean update = doctorDAO.updateDoctor(doctor);
-    if(update){
+        String updatedDoctor = getRequiredStringInput(
+            "Enter new doctor name: "
+        );
+        doctor.setName(updatedDoctor);
 
-        System.out.println("Doctor information has been updated");
-    
-    }else{
-        System.out.println("Update failed");
+        boolean update = doctorDAO.updateDoctor(doctor);
+        if (update) {
+            System.out.println("Doctor information has been updated");
+        } else {
+            System.out.println("Update failed");
+        }
     }
 }
-}
-
-   
-    
-    

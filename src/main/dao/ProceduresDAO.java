@@ -3,8 +3,6 @@ package main.dao;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import main.models.Patients;
 import main.models.Procedures;
 import main.util.Database;
 
@@ -43,9 +41,12 @@ public class ProceduresDAO {
      */
     public boolean createProcedure(Procedures procedure) throws SQLException {
         // SQL INSERT statement for creating a new procedure record
-        String sql = "INSERT INTO procedures (id, name, description, duration, doctorId) VALUES (?, ?, ?, ?, ?)";
+        String sql =
+            "INSERT INTO procedures (id, name, description, duration, doctorId) VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
             // Set parameters in the prepared statement to prevent SQL injection
             stmt.setString(1, procedure.getId());
             stmt.setString(2, procedure.getName());
@@ -56,42 +57,47 @@ public class ProceduresDAO {
             // Execute the insert and return success status
             return stmt.executeUpdate() > 0;
         }
-    }public Procedures getProcedureID (String id){
-        String sql =  "SELECT * FROM procedures WHERE id = ?";
-        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
-            stmt.setString(1,id);
+    }
+
+    public Procedures getProcedureID(String id) {
+        String sql = "SELECT * FROM procedures WHERE id = ?";
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
 
-            if(rs.next()){
+            if (rs.next()) {
                 return new Procedures(
                     rs.getString("id"),
                     rs.getString("name"),
                     rs.getString("description"),
                     rs.getInt("duration"),
                     rs.getString("doctorId")
-                  
-                   
-        );
+                );
             }
-            }catch(SQLException e){
-                System.out.println("Error occured" + e.getMessage());
-            }
-            return null;
+        } catch (SQLException e) {
+            System.out.println("Error occured" + e.getMessage());
         }
-    public boolean updateProcedure(Procedures procedure) throws SQLException{
-        String sql = "UPDATE procedures SET name = ?, description = ?, duration = ?, doctorId = ? WHERE id = ?";
-        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql)){
-            
-            stmt.setString(1,procedure.getName());
-            stmt.setString(2,procedure.getDescription());
-            stmt.setInt(3,procedure.getDuration());
-            stmt.setString(4,procedure.getDoctorId());
-            stmt.setString(5,procedure.getId());
-            
-            return stmt.executeUpdate() > 0;
-        }catch(SQLException e){
-        System.out.println("Error occurred" + e.getMessage());
-        return false;
+        return null;
     }
-}
+
+    public boolean updateProcedure(Procedures procedure) throws SQLException {
+        String sql =
+            "UPDATE procedures SET name = ?, description = ?, duration = ?, doctorId = ? WHERE id = ?";
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
+            stmt.setString(1, procedure.getName());
+            stmt.setString(2, procedure.getDescription());
+            stmt.setInt(3, procedure.getDuration());
+            stmt.setString(4, procedure.getDoctorId());
+            stmt.setString(5, procedure.getId());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error occurred" + e.getMessage());
+            return false;
+        }
+    }
 }
