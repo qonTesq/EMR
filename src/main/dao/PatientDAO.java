@@ -1,9 +1,11 @@
 package main.dao;
 
+import java.sql.*;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import main.models.Patients;
 import main.util.Database;
 
@@ -52,13 +54,7 @@ public class PatientDAO {
             stmt.setInt(1, patient.getMrn());
             stmt.setString(2, patient.getFname());
             stmt.setString(3, patient.getLname());
-            // dob is stored as text in database
-            stmt.setString(
-                4,
-                patient
-                    .getDob()
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            );
+            stmt.setDate(4, Date.valueOf(patient.getDob()));
             stmt.setString(5, patient.getAddress());
             stmt.setString(6, patient.getState());
             stmt.setString(7, patient.getCity());
@@ -71,31 +67,26 @@ public class PatientDAO {
         }
     }
 
-    /**
-     * Retrieves a patient record by their MRN (Medical Record Number).
-     * This method queries the patients table for a specific patient by their unique MRN.
-     *
-     * @param mrn the MRN of the patient to retrieve
-     * @return the Patients object if found, null otherwise
-     * @throws SQLException if a database access error occurs or the SQL statement
-     *                      fails
-     */
-    public Patients getPatient(int mrn) throws SQLException {
+    public Patients getPatientMRN(int mrn) {
         String sql = "SELECT * FROM patients WHERE mrn = ?";
         try (
             PreparedStatement stmt = db.getConnection().prepareStatement(sql)
         ) {
             stmt.setInt(1, mrn);
-            var rs = stmt.executeQuery();
+            ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                // dob is stored as text in database
-                String dobString = rs.getString("dob");
-                java.time.LocalDate dob = java.time.LocalDate.parse(
-                    dobString,
-                    java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                );
-
+                LocalDate dob;
+                try {
+                    java.sql.Date sqlDate = rs.getDate("dob");
+                    dob = sqlDate.toLocalDate();
+                } catch (SQLException e) {
+                    String dateStr = rs.getString("dob");
+                    DateTimeFormatter oldFormat = DateTimeFormatter.ofPattern(
+                        "dd/MM/yyyy"
+                    );
+                    dob = LocalDate.parse(dateStr, oldFormat);
+                }
                 return new Patients(
                     rs.getInt("mrn"),
                     rs.getString("fname"),
@@ -115,32 +106,6 @@ public class PatientDAO {
         return null;
     }
 
-    /**
-     * Retrieves all patient records from the database.
-     * This method returns a list of all patients stored in the patients table.
-     *
-     * @return a list of all Patients objects, or an empty list if no patients exist
-     * @throws SQLException if a database access error occurs or the SQL statement
-     *                      fails
-     */
-    public List<Patients> getAllPatients() throws SQLException {
-        // TODO: Implement read all logic
-        // Use SELECT * SQL statement to retrieve all patients
-        // Return a list of Patients objects
-        throw new UnsupportedOperationException(
-            "getAllPatients not yet implemented"
-        );
-    }
-
-    /**
-     * Updates an existing patient record in the database.
-     * This method updates all fields of a patient record identified by their MRN.
-     *
-     * @param patient the Patients object containing updated information
-     * @return true if the patient was successfully updated, false otherwise
-     * @throws SQLException if a database access error occurs or the SQL statement
-     *                      fails
-     */
     public boolean updatePatient(Patients patient) throws SQLException {
         String sql =
             "UPDATE patients SET fname = ?, lname = ?, dob = ?, address = ?, city = ?, state =?, zip =?, insurance = ?, email =? WHERE mrn = ?";
@@ -149,13 +114,7 @@ public class PatientDAO {
         ) {
             stmt.setString(1, patient.getFname());
             stmt.setString(2, patient.getLname());
-            // dob is stored as text in database
-            stmt.setString(
-                3,
-                patient
-                    .getDob()
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            );
+            stmt.setDate(3, java.sql.Date.valueOf(patient.getDob()));
             stmt.setString(4, patient.getAddress());
             stmt.setString(5, patient.getCity());
             stmt.setString(6, patient.getState());
@@ -169,22 +128,5 @@ public class PatientDAO {
             // Silently handle error - update may fail due to invalid data
             return false;
         }
-    }
-
-    /**
-     * Deletes a patient record from the database.
-     * This method removes a patient from the patients table by their MRN.
-     *
-     * @param mrn the MRN of the patient to delete
-     * @return true if the patient was successfully deleted, false otherwise
-     * @throws SQLException if a database access error occurs or the SQL statement
-     *                      fails
-     */
-    public boolean deletePatient(int mrn) throws SQLException {
-        // TODO: Implement deletion logic
-        // Use DELETE SQL statement with patient MRN parameter
-        throw new UnsupportedOperationException(
-            "deletePatient not yet implemented"
-        );
     }
 }

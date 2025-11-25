@@ -126,7 +126,7 @@ public class DoctorsCLI extends CLI {
 
         Doctors doctor;
         try {
-            doctor = doctorDAO.getDoctor(id);
+            doctor = doctorDAO.getDoctorID(id);
         } catch (SQLException e) {
             System.out.println("Error fetching records: " + e.getMessage());
             return;

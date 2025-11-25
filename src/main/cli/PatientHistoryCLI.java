@@ -240,7 +240,7 @@ public class PatientHistoryCLI extends CLI {
         String patientHistoryID = getRequiredStringInput("Enter History ID: ");
         PatientHistory history;
         try {
-            history = patientHistoryDAO.getPatientHistory(patientHistoryID);
+            history = patientHistoryDAO.getPatientHistoryID(patientHistoryID);
         } catch (SQLException e) {
             System.out.println("Error retrieving record: " + e.getMessage());
             return;
