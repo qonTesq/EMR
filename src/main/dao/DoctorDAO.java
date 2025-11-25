@@ -140,11 +140,5 @@ public class DoctorDAO {
      * @throws SQLException if a database access error occurs or the SQL statement
      *                      fails
      */
-    public boolean deleteDoctor(String id) throws SQLException {
-        // TODO: Implement deletion logic
-        // Use DELETE SQL statement with doctor ID parameter
-        throw new UnsupportedOperationException(
-            "deleteDoctor not yet implemented"
-        );
-    }
+    
 }

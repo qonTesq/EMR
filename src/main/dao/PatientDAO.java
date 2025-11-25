@@ -1,6 +1,5 @@
 package main.dao;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -198,11 +197,5 @@ public class PatientDAO {
      * @throws SQLException if a database access error occurs or the SQL statement
      *                      fails
      */
-    public boolean deletePatient(int mrn) throws SQLException {
-        // TODO: Implement deletion logic
-        // Use DELETE SQL statement with patient MRN parameter
-        throw new UnsupportedOperationException(
-            "deletePatient not yet implemented"
-        );
-    }
+    
 }

@@ -157,11 +157,5 @@ public class ProceduresDAO {
      * @throws SQLException if a database access error occurs or the SQL statement
      *                      fails
      */
-    public boolean deleteProcedure(String id) throws SQLException {
-        // TODO: Implement deletion logic
-        // Use DELETE SQL statement with procedure ID parameter
-        throw new UnsupportedOperationException(
-            "deleteProcedure not yet implemented"
-        );
-    }
+    
 }

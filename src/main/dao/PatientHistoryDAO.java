@@ -167,11 +167,5 @@ public class PatientHistoryDAO {
      * @throws SQLException if a database access error occurs or the SQL statement
      *                      fails
      */
-    public boolean deletePatientHistory(String id) throws SQLException {
-        // TODO: Implement deletion logic
-        // Use DELETE SQL statement with patient history ID parameter
-        throw new UnsupportedOperationException(
-            "deletePatientHistory not yet implemented"
-        );
-    }
+    
 }
