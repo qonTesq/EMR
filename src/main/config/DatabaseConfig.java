@@ -8,7 +8,7 @@ package main.config;
  * It follows the configuration pattern to separate configuration concerns
  * from business logic.
  * </p>
- * 
+ *
  * <h3>Environment Variables:</h3>
  * <ul>
  * <li><b>EMR_DB_URL</b> - JDBC connection URL (default:
@@ -16,13 +16,13 @@ package main.config;
  * <li><b>EMR_DB_USER</b> - Database username (default: root)</li>
  * <li><b>EMR_DB_PASSWORD</b> - Database password (default: empty string)</li>
  * </ul>
- * 
+ *
  * <h3>Usage Example:</h3>
- * 
+ *
  * <pre>
  * // Using environment variables
  * DatabaseConfig config = new DatabaseConfig();
- * 
+ *
  * // Using custom values
  * DatabaseConfig config = new DatabaseConfig(
  *         "jdbc:mysql://prod-server:3306/emr",
@@ -33,7 +33,8 @@ package main.config;
 public class DatabaseConfig {
 
     /** Default JDBC connection URL pointing to local MySQL instance */
-    private static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/emr_db";
+    private static final String DEFAULT_URL =
+        "jdbc:mysql://localhost:3306/emr_db";
 
     /** Default database username for local development */
     private static final String DEFAULT_USER = "root";
@@ -59,7 +60,7 @@ public class DatabaseConfig {
      * for secure configuration in production while maintaining ease of use in
      * development.
      * </p>
-     * 
+     *
      * @see #DatabaseConfig(String, String, String) for custom configuration
      */
     public DatabaseConfig() {
@@ -76,7 +77,7 @@ public class DatabaseConfig {
      * or when configuration comes from a different source than environment
      * variables.
      * </p>
-     * 
+     *
      * @param url      the JDBC connection URL (must not be null)
      * @param user     the database username (must not be null)
      * @param password the database password (may be empty but not null)
@@ -93,7 +94,7 @@ public class DatabaseConfig {
      * This utility method safely reads environment variables, providing a fallback
      * value when the variable is not defined in the system environment.
      * </p>
-     * 
+     *
      * @param key          the environment variable name
      * @param defaultValue the fallback value if environment variable is not set
      * @return the environment variable value or default value
@@ -105,7 +106,7 @@ public class DatabaseConfig {
 
     /**
      * Returns the JDBC connection URL.
-     * 
+     *
      * @return the database connection URL
      */
     public String getUrl() {
@@ -114,7 +115,7 @@ public class DatabaseConfig {
 
     /**
      * Returns the database username.
-     * 
+     *
      * @return the database username for authentication
      */
     public String getUser() {
@@ -123,7 +124,7 @@ public class DatabaseConfig {
 
     /**
      * Returns the database password.
-     * 
+     *
      * @return the database password for authentication
      */
     public String getPassword() {

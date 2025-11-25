@@ -13,7 +13,7 @@ import java.util.Scanner;
  * that is shared across multiple CLI classes. All concrete CLI classes should
  * extend this base class to inherit the validation functionality.
  * </p>
- * 
+ *
  * <h3>Key Features:</h3>
  * <ul>
  * <li>Integer input validation with error handling</li>
@@ -23,9 +23,9 @@ import java.util.Scanner;
  * <li>Automatic retry on invalid input</li>
  * <li>User-friendly error messages</li>
  * </ul>
- * 
+ *
  * <h3>Usage:</h3>
- * 
+ *
  * <pre>
  * public class MyCLI extends CLI {
  *     public void start() {
@@ -48,7 +48,8 @@ public abstract class CLI {
      * Standard date formatter for parsing and displaying dates in ISO format
      * (yyyy-MM-dd)
      */
-    protected static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    protected static final DateTimeFormatter DATE_FORMATTER =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
      * Protected constructor initializing the Scanner for user input.
@@ -70,7 +71,7 @@ public abstract class CLI {
      * and re-prompting the user. Leading and trailing whitespace is automatically
      * removed.
      * </p>
-     * 
+     *
      * @param prompt the message to display when asking for input (e.g., "Enter your
      *               age: ")
      * @return the validated integer input from the user
@@ -83,7 +84,9 @@ public abstract class CLI {
                 return Integer.parseInt(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
                 // Invalid input - inform user and retry
-                System.out.println("Invalid input. Please enter a valid number.");
+                System.out.println(
+                    "Invalid input. Please enter a valid number."
+                );
             }
         }
     }
@@ -97,7 +100,7 @@ public abstract class CLI {
      * It handles NumberFormatException gracefully by displaying an error message
      * and re-prompting the user. Useful for monetary amounts, measurements, etc.
      * </p>
-     * 
+     *
      * @param prompt the message to display when asking for input (e.g., "Enter
      *               billing amount: ")
      * @return the validated double input from the user
@@ -110,7 +113,9 @@ public abstract class CLI {
                 return Double.parseDouble(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
                 // Invalid input - inform user and retry
-                System.out.println("Invalid input. Please enter a valid number.");
+                System.out.println(
+                    "Invalid input. Please enter a valid number."
+                );
             }
         }
     }
@@ -122,7 +127,7 @@ public abstract class CLI {
      * whitespace. The input can be empty. For required fields, use
      * {@link #getRequiredStringInput(String)} instead.
      * </p>
-     * 
+     *
      * @param prompt the message to display when asking for input
      * @return the trimmed string input (may be empty)
      * @see #getRequiredStringInput(String) for required fields
@@ -139,7 +144,7 @@ public abstract class CLI {
      * prompting until valid input is received. Empty strings (after trimming) are
      * rejected with an error message. Use this for mandatory fields.
      * </p>
-     * 
+     *
      * @param prompt the message to display when asking for input
      * @return the validated non-empty string input
      * @see #getStringInput(String) for optional fields
@@ -150,7 +155,9 @@ public abstract class CLI {
             input = getStringInput(prompt);
             if (input.isEmpty()) {
                 // Inform user that field is required and retry
-                System.out.println("This field is required. Please enter a value.");
+                System.out.println(
+                    "This field is required. Please enter a value."
+                );
             }
         } while (input.isEmpty());
         return input;
@@ -164,14 +171,14 @@ public abstract class CLI {
      * errors gracefully by displaying an error message and re-prompting. The field
      * is required - empty input is not accepted.
      * </p>
-     * 
+     *
      * <h3>Valid Date Examples:</h3>
      * <ul>
      * <li>2025-10-03</li>
      * <li>1990-01-15</li>
      * <li>2000-12-31</li>
      * </ul>
-     * 
+     *
      * @param prompt the message to display when asking for input (should mention
      *               format)
      * @return the validated LocalDate object representing the user's input
@@ -184,7 +191,9 @@ public abstract class CLI {
                 return LocalDate.parse(input, DATE_FORMATTER);
             } catch (DateTimeParseException e) {
                 // Invalid date format - inform user and retry
-                System.out.println("Invalid date format. Please use yyyy-MM-dd format.");
+                System.out.println(
+                    "Invalid date format. Please use yyyy-MM-dd format."
+                );
             }
         }
     }

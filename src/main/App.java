@@ -10,7 +10,7 @@ import main.util.Database;
  * It initializes the database connection and starts the main user interface,
  * ensuring proper resource cleanup even in case of errors.
  * </p>
- * 
+ *
  * <h3>Application Flow:</h3>
  * <ol>
  * <li>Initialize database connection</li>
@@ -18,7 +18,7 @@ import main.util.Database;
  * <li>Handle user interactions until exit</li>
  * <li>Cleanup and close database connection</li>
  * </ol>
- * 
+ *
  * <h3>Configuration:</h3>
  * <p>
  * The application reads database configuration from environment variables:
@@ -41,14 +41,14 @@ public class App {
      * proper cleanup of resources. The application follows a try-finally pattern
      * to guarantee database closure even if errors occur during execution.
      * </p>
-     * 
+     *
      * <h3>Error Handling:</h3>
      * <ul>
      * <li>Database connection failures cause immediate exit with error code 1</li>
      * <li>Runtime exceptions are caught and logged before exiting</li>
      * <li>Database connection is always closed in the finally block</li>
      * </ul>
-     * 
+     *
      * @param args command line arguments (currently unused)
      */
     public static void main(String[] args) {
@@ -60,12 +60,10 @@ public class App {
 
             // Start the main user interface loop
             new MainCLI(db).start();
-
         } catch (RuntimeException e) {
             // Handle fatal errors (e.g., database connection failure)
             System.err.println("Fatal error: " + e.getMessage());
             System.exit(1);
-
         } finally {
             // Always cleanup database resources, even if errors occurred
             if (db != null) {

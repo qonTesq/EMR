@@ -42,8 +42,14 @@ public class PatientHistory {
      * @param billing     Billing amount for the procedure
      * @param doctorId    ID of the attending doctor
      */
-    public PatientHistory(String id, int patientId, String procedureId, LocalDate date, double billing,
-            String doctorId) {
+    public PatientHistory(
+        String id,
+        int patientId,
+        String procedureId,
+        LocalDate date,
+        double billing,
+        String doctorId
+    ) {
         this.id = id;
         this.patientId = patientId;
         this.procedureId = procedureId;
@@ -56,8 +62,7 @@ public class PatientHistory {
      * Default constructor for creating an empty PatientHistory object.
      * Used by frameworks and for object initialization before setting fields.
      */
-    public PatientHistory() {
-    }
+    public PatientHistory() {}
 
     /**
      * Gets the unique identifier for this patient history record.
@@ -175,8 +180,20 @@ public class PatientHistory {
      */
     @Override
     public String toString() {
-        return "PatientHistory ID: " + id + ", Patient ID: " + patientId + ", Procedure ID: " + procedureId +
-                ", Date: " + date + ", Billing: $" + billing + ", Doctor ID: " + doctorId;
+        return (
+            "PatientHistory ID: " +
+            id +
+            ", Patient ID: " +
+            patientId +
+            ", Procedure ID: " +
+            procedureId +
+            ", Date: " +
+            date +
+            ", Billing: $" +
+            billing +
+            ", Doctor ID: " +
+            doctorId
+        );
     }
 
     /**
@@ -188,10 +205,8 @@ public class PatientHistory {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof PatientHistory))
-            return false;
+        if (this == o) return true;
+        if (!(o instanceof PatientHistory)) return false;
         PatientHistory ph = (PatientHistory) o;
         return id != null && id.equals(ph.id);
     }
