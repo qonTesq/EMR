@@ -1,8 +1,8 @@
 package main.dao;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import main.models.Procedures;
 import main.util.Database;
 
@@ -59,13 +59,22 @@ public class ProceduresDAO {
         }
     }
 
-    public Procedures getProcedureID(String id) {
+    /**
+     * Retrieves a procedure record by its ID.
+     * This method queries the procedures table for a specific procedure by its unique ID.
+     *
+     * @param id the ID of the procedure to retrieve
+     * @return the Procedures object if found, null otherwise
+     * @throws SQLException if a database access error occurs or the SQL statement
+     *                      fails
+     */
+    public Procedures getProcedure(String id) throws SQLException {
         String sql = "SELECT * FROM procedures WHERE id = ?";
         try (
             PreparedStatement stmt = db.getConnection().prepareStatement(sql)
         ) {
             stmt.setString(1, id);
-            ResultSet rs = stmt.executeQuery();
+            var rs = stmt.executeQuery();
 
             if (rs.next()) {
                 return new Procedures(
@@ -82,6 +91,32 @@ public class ProceduresDAO {
         return null;
     }
 
+    /**
+     * Retrieves all procedure records from the database.
+     * This method returns a list of all procedures stored in the procedures table.
+     *
+     * @return a list of all Procedures objects, or an empty list if no procedures exist
+     * @throws SQLException if a database access error occurs or the SQL statement
+     *                      fails
+     */
+    public List<Procedures> getAllProcedures() throws SQLException {
+        // TODO: Implement read all logic
+        // Use SELECT * SQL statement to retrieve all procedures
+        // Return a list of Procedures objects
+        throw new UnsupportedOperationException(
+            "getAllProcedures not yet implemented"
+        );
+    }
+
+    /**
+     * Updates an existing procedure record in the database.
+     * This method updates all fields of a procedure record identified by its ID.
+     *
+     * @param procedure the Procedures object containing updated information
+     * @return true if the procedure was successfully updated, false otherwise
+     * @throws SQLException if a database access error occurs or the SQL statement
+     *                      fails
+     */
     public boolean updateProcedure(Procedures procedure) throws SQLException {
         String sql =
             "UPDATE procedures SET name = ?, description = ?, duration = ?, doctorId = ? WHERE id = ?";
@@ -99,5 +134,22 @@ public class ProceduresDAO {
             // Silently handle error - update may fail due to invalid data
             return false;
         }
+    }
+
+    /**
+     * Deletes a procedure record from the database.
+     * This method removes a procedure from the procedures table by its ID.
+     *
+     * @param id the ID of the procedure to delete
+     * @return true if the procedure was successfully deleted, false otherwise
+     * @throws SQLException if a database access error occurs or the SQL statement
+     *                      fails
+     */
+    public boolean deleteProcedure(String id) throws SQLException {
+        // TODO: Implement deletion logic
+        // Use DELETE SQL statement with procedure ID parameter
+        throw new UnsupportedOperationException(
+            "deleteProcedure not yet implemented"
+        );
     }
 }

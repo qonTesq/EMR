@@ -228,7 +228,13 @@ public class PatientsCLI extends CLI {
         System.out.println("\n--- Update Patient ---");
 
         int mrn = getIntInput("Enter Patient MRN: ");
-        Patients patient = patientDAO.getPatientMRN(mrn);
+        Patients patient;
+        try {
+            patient = patientDAO.getPatient(mrn);
+        } catch (SQLException e) {
+            System.out.println("Error fetching patient: " + e.getMessage());
+            return;
+        }
 
         if (patient == null) {
             System.out.println("Patient not found");

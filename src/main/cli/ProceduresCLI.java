@@ -231,7 +231,13 @@ public class ProceduresCLI extends CLI {
         System.out.println("\n--- Update Procedure ---");
 
         String id = getRequiredStringInput("Enter Procedure ID: ");
-        Procedures procedures = proceduresDAO.getProcedureID(id);
+        Procedures procedures;
+        try {
+            procedures = proceduresDAO.getProcedure(id);
+        } catch (SQLException e) {
+            System.out.println("Error fetching procedure: " + e.getMessage());
+            return;
+        }
 
         if (procedures == null) {
             System.out.println("Procedure not found");
