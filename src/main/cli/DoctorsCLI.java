@@ -10,7 +10,7 @@ import main.util.Database;
  * <p>
  * This class provides an interface for managing doctor information in the
  * Electronic Medical Records system. Doctors are medical professionals who
- * perform Doctors on patients.
+ * perform procedures on patients.
  * </p>
  *
  * <h3>Features:</h3>
@@ -67,22 +67,9 @@ public class DoctorsCLI extends CLI {
                 case 0:
                     return;
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    System.out.println("Invalid option. Please try again.");
             }
         }
-    }
-
-    private void showMenu() 
-    {
-        System.out.println("\n=== Doctor Management ===");
-            System.out.println("1. Create Doctor");
-            System.out.println("2. Read Doctor by ID");
-            System.out.println("3. Read All Doctors");
-            System.out.println("4. Update Doctor");
-            System.out.println("5. Delete Doctor");
-            System.out.println("6. Back to Main Menu");
-            System.out.println("============================");
-            System.out.print("Choose an option: ");
     }
 
     /**

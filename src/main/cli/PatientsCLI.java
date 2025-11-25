@@ -182,46 +182,11 @@ public class PatientsCLI extends CLI {
     }
 
     private void readPatient() {
-        System.out.println("\n--- Read Patient ---");
-        int mrn = getIntInput("Enter MRN: ");
-
-        try
-        {
-            if(patientDAO.readPatient(mrn) != null)
-            {
-                System.out.println("\n" + patientDAO.readPatient(mrn).toString());
-            }
-            else
-            {
-                System.out.println("\n!!! Patient with MRN " + mrn + " not found !!!");
-            }
-
-        }catch (Exception e)
-        {
-            System.out.println("\n!!! Error reading patient: " + e.getMessage() + " !!!");
-        }
+        System.out.println("\n--- Read Patient (WIP) ---");
     }
 
     private void readAllPatients() {
-        System.out.println("\n--- All Patients ---");
-        try
-        {
-            if(!patientDAO.readAllPatients().isEmpty())
-            {
-                for (Patients  patient : patientDAO.readAllPatients()) 
-                {
-                    System.out.println(patient);
-                }
-            }
-            else
-            {
-                System.out.println("\n!!! There are no recorded patients !!!");
-            }
-            
-        }catch (Exception e)
-        {
-            System.out.println("\n!!! Error reading patients: " + e.getMessage() + " !!!");
-        }
+        System.out.println("\n--- All Patients (WIP) ---");
     }
 
     private void updatePatient() {
