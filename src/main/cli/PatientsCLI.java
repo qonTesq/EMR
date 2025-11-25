@@ -1,5 +1,6 @@
 package main.cli;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 import main.dao.PatientDAO;
@@ -182,5 +183,19 @@ public class PatientsCLI extends CLI {
 
     private void deletePatient() {
         System.out.println("\n--- Delete Patient (WIP) ---");
+        int mrn = getIntInput("Enter MRN: ");
+
+        try {
+            if (patientDAO.deletePatient(mrn)) {
+                System.out.println("\nPatient deleted successfully!");
+            } else {
+                System.out.println("\n!!! Failed to delete patient !!!");
+            }
+        } catch (Exception e) {
+            // Handle database errors (e.g., duplicate MRN, connection issues)
+            System.out.println("\n!!! Error deleting patient: " + e.getMessage() + " !!!");
+        }
+
+          
     }
 }

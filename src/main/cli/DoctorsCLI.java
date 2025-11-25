@@ -50,6 +50,7 @@ public class DoctorsCLI extends CLI {
         while (true) {
             System.out.println("\n=== Doctor Management ===");
             System.out.println("1. Create Doctor");
+            System.out.println("2. Delete Doctor");
             System.out.println("0. Back to Main Menu");
             System.out.print("Choose an option: ");
 
@@ -58,6 +59,9 @@ public class DoctorsCLI extends CLI {
             switch (choice) {
                 case 1:
                     createDoctor();
+                    break;
+                case 2:
+                    deleteDoctor();
                     break;
                 case 0:
                     return;
@@ -94,6 +98,25 @@ public class DoctorsCLI extends CLI {
         } catch (Exception e) {
             // Handle database errors (e.g., duplicate doctor ID)
             System.out.println("Error creating doctor: " + e.getMessage());
+        }
+    }
+
+    private void deleteDoctor(){
+        System.out.println("\n--- Delete Doctor ---");
+
+        String id = getStringInput("Enter Doctor ID to delete (e.g., DR1): ");
+
+        try {
+            boolean deleted = doctorDAO.deleteDoctor(id);
+
+            if (deleted) {
+                System.out.println("\nDoctor deleted successfully!");
+            } else {
+                System.out.println("\n!!! Failed to delete doctor (ID not found) !!!");
+            }
+
+        } catch (Exception e) {
+            System.out.println("\n!!! Error deleting doctor: " + e.getMessage() + " !!!");
         }
     }
 }
