@@ -55,6 +55,17 @@ public class DoctorDAO {
         }
     }
 
+    public boolean deleteDoctor(String doctorId) throws SQLException {
+    String sql = "DELETE FROM doctors WHERE id = ?";
+
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, doctorId);
+
+            // executeUpdate() returns number of rows affected
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
     /**
      * Retrieves a doctor record by their ID.
      * This method queries the doctors table for a specific doctor by their unique ID.

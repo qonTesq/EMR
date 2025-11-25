@@ -62,6 +62,16 @@ public class PatientHistoryDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+    public boolean deletePatientHistory(String historyId) throws SQLException {
+    String sql = "DELETE FROM patient_history WHERE id = ?";
+
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, historyId);
+
+            // executeUpdate() returns the number of rows affected
+            return stmt.executeUpdate() > 0;
+        }
+    }
 
     /**
      * Retrieves a patient history record by its ID.
