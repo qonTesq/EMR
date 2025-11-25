@@ -9,7 +9,7 @@ import main.util.Database;
  * <p>
  * This class provides an interface for managing doctor information in the
  * Electronic Medical Records system. Doctors are medical professionals who
- * perform procedures on patients.
+ * perform Doctors on patients.
  * </p>
  *
  * <h3>Features:</h3>
@@ -47,24 +47,48 @@ public class DoctorsCLI extends CLI {
      * </p>
      */
     public void start() {
-        while (true) {
-            System.out.println("\n=== Doctor Management ===");
-            System.out.println("1. Create Doctor");
-            System.out.println("0. Back to Main Menu");
-            System.out.print("Choose an option: ");
-
-            int choice = getIntInput("");
+       boolean running = true;
+        while (running) {
+            showMenu();
+            int choice = getIntInput("Enter your choice: ");
 
             switch (choice) {
                 case 1:
                     createDoctor();
                     break;
-                case 0:
-                    return;
+                case 2:
+                    readDoctor();
+                    break;
+                case 3:
+                    readAllDoctors();
+                    break;
+                case 4:
+                    updateDoctor();
+                    break;
+                case 5:
+                    deleteDoctor();
+                    break;
+                case 6:
+                    running = false;
+                    System.out.println("\nReturning to main menu...");
+                    break;
                 default:
-                    System.out.println("Invalid option. Please try again.");
+                    System.out.println("Invalid choice. Please try again.");
             }
         }
+    }
+
+    private void showMenu() 
+    {
+        System.out.println("\n=== Doctor Management ===");
+            System.out.println("1. Create Doctor");
+            System.out.println("2. Read Doctor by ID");
+            System.out.println("3. Read All Doctors");
+            System.out.println("4. Update Doctor");
+            System.out.println("5. Delete Doctor");
+            System.out.println("6. Back to Main Menu");
+            System.out.println("============================");
+            System.out.print("Choose an option: ");
     }
 
     /**
@@ -96,4 +120,58 @@ public class DoctorsCLI extends CLI {
             System.out.println("Error creating doctor: " + e.getMessage());
         }
     }
+
+    private void readDoctor() {
+        System.out.println("\n--- Read Doctor ---");
+        String id = getStringInput("Enter ID for Doctor: ");
+
+        try
+        {
+            if(doctorDAO.readDoctor(id) != null)
+            {
+                System.out.println("\n" + doctorDAO.readDoctor(id).toString());
+            }
+            else
+            {
+                System.out.println("\n!!! Doctor with id " + id + " not found !!!");
+            }
+
+        }catch (Exception e)
+        {
+            System.out.println("\n!!! Error reading Doctor: " + e.getMessage() + " !!!");
+        }
+    }
+
+    private void readAllDoctors() {
+        System.out.println("\n--- All Doctors ---");
+        
+        try
+        {
+            if(!doctorDAO.readAllDoctors().isEmpty())
+            {
+                for (Doctors Doctor : doctorDAO.readAllDoctors()) 
+                {
+                    System.out.println(Doctor);
+                }
+            }
+            else
+            {
+                System.out.println("\n!!! There are no recorded doctors !!!");
+            }
+            
+        }catch (Exception e)
+        {
+            System.out.println("\n!!! Error reading Doctors: " + e.getMessage() + " !!!");
+        }
+    }
+
+    private void updateDoctor() {
+        System.out.println("\n--- Update Patient History (WIP) ---");
+    }
+
+    private void deleteDoctor() {
+        System.out.println("\n--- Delete Patient History (WIP) ---");
+    }
+
+
 }

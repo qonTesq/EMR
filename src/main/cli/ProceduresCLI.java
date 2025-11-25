@@ -11,8 +11,8 @@ import main.util.Database;
  * medical
  * procedures. Procedures represent the various medical services, tests, and
  * treatments
- * that can be performed on patients. Each procedure has a unique identifier and
- * descriptive name. These procedures are referenced when creating patient
+ * that can be performed on Procedures. Each procedure has a unique identifier and
+ * descriptive name. These procedures are referenced when creating Procedure
  * history records.
  * </p>
  * 
@@ -62,7 +62,7 @@ public class ProceduresCLI extends CLI {
      * This method displays the procedures management menu and processes user
      * choices
      * until the user chooses to return to the main menu. Procedures defined here
-     * become available for use when recording patient history.
+     * become available for use when recording Procedure history.
      * </p>
      * 
      * <h3>Menu Options:</h3>
@@ -127,7 +127,7 @@ public class ProceduresCLI extends CLI {
      * catalog.
      * <p>
      * This method adds a new procedure type to the available procedures catalog.
-     * Procedures defined here can be referenced when creating patient history
+     * Procedures defined here can be referenced when creating Procedure history
      * records.
      * Each procedure is identified by a unique ID and has a descriptive name.
      * </p>
@@ -175,11 +175,47 @@ public class ProceduresCLI extends CLI {
     }
 
     private void readProcedure() {
-        System.out.println("\n--- Read Procedure (WIP) ---");
+        System.out.println("\n--- Read Procedure ---");
+        String id = getStringInput("Enter ID for procedure: ");
+
+        try
+        {
+            if(proceduresDAO.readProcedures(id) != null)
+            {
+                System.out.println("\n" + proceduresDAO.readProcedures(id).toString());
+            }
+            else
+            {
+                System.out.println("\n!!! Procedure with id " + id + " not found !!!");
+            }
+
+        }catch (Exception e)
+        {
+            System.out.println("\n!!! Error reading Procedure: " + e.getMessage() + " !!!");
+        }
     }
 
     private void readAllProcedures() {
-        System.out.println("\n--- All Procedures (WIP) ---");
+        System.out.println("\n--- All Procedures ---");
+        
+        try
+        {
+            if(!proceduresDAO.readAllProcedures().isEmpty())
+            {
+                for (Procedures procedure : proceduresDAO.readAllProcedures()) 
+                {
+                    System.out.println(procedure);
+                }
+            }
+            else
+            {
+                System.out.println("\n!!! There are no recorded procedures !!!");
+            }
+            
+        }catch (Exception e)
+        {
+            System.out.println("\n!!! Error reading procedures: " + e.getMessage() + " !!!");
+        }
     }
 
     private void updateProcedure() {

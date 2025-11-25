@@ -3,6 +3,7 @@ package main.cli;
 import java.time.LocalDate;
 
 import main.dao.PatientHistoryDAO;
+import main.models.Doctors;
 import main.models.PatientHistory;
 import main.util.Database;
 
@@ -114,7 +115,7 @@ public class PatientHistoryCLI extends CLI {
     private void showMenu() {
         System.out.println("\n=== Patient History Management ===");
         System.out.println("1. Create Patient History");
-        System.out.println("2. Read Patient History by ID");
+        System.out.println("2. Read Patient History by Patient ID (mrn)");
         System.out.println("3. Read All Patient History");
         System.out.println("4. Update Patient History");
         System.out.println("5. Delete Patient History");
@@ -179,11 +180,49 @@ public class PatientHistoryCLI extends CLI {
     }
 
     private void readPatientHistory() {
-        System.out.println("\n--- Read Patient History (WIP) ---");
+        System.out.println("\n--- Read Patient History ---");
+        int selected_pid = getIntInput("Enter patient ID (also known as mrn) to get patient's history: ");
+        
+        try
+        {
+            if(patientHistoryDAO.readPatientHistory(selected_pid) != null)
+            {
+                System.out.println("\n" + patientHistoryDAO.readPatientHistory(selected_pid).toString());
+            }
+            else
+            {
+                System.out.println("\n!!! Patient history for patient with mrn " + selected_pid + " not found !!!");
+            }
+            
+ 
+        }catch (Exception e)
+        {
+            System.out.println("Patient history could not be found: " + e.getMessage());
+        }
+        
     }
 
     private void readAllPatientHistory() {
-        System.out.println("\n--- All Patient History (WIP) ---");
+        System.out.println("\n--- All Patient History ---");
+
+        try
+        {
+            if(!patientHistoryDAO.readAllPatientHistories().isEmpty())
+            {
+                for (PatientHistory patientHistory : patientHistoryDAO.readAllPatientHistories()) 
+                {
+                    System.out.println(patientHistory);
+                }
+            }
+            else
+            {
+                System.out.println("\n!!! There are no recorded patient histories !!!");
+            }
+            
+        }catch (Exception e)
+        {
+            System.out.println("\n!!! Error reading Patient Histories: " + e.getMessage() + " !!!");
+        }
     }
 
     private void updatePatientHistory() {
