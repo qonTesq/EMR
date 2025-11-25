@@ -1,7 +1,7 @@
 package main.cli;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
-
 import main.dao.PatientHistoryDAO;
 import main.models.PatientHistory;
 import main.util.Database;
@@ -18,7 +18,7 @@ import main.util.Database;
  * performed,
  * when they occurred, who performed them, and associated billing information.
  * </p>
- * 
+ *
  * <h3>Features:</h3>
  * <ul>
  * <li>Create patient history records linking patients to procedures</li>
@@ -27,7 +27,7 @@ import main.util.Database;
  * <li>Update existing history records</li>
  * <li>Delete history records</li>
  * </ul>
- * 
+ *
  * @see PatientHistoryDAO
  * @see PatientHistory
  */
@@ -44,7 +44,7 @@ public class PatientHistoryCLI extends CLI {
      * <p>
      * Initializes the patient history data access object for database operations.
      * </p>
-     * 
+     *
      * @param db the Database instance for database operations
      * @throws NullPointerException if db is null
      */
@@ -63,7 +63,7 @@ public class PatientHistoryCLI extends CLI {
      * referential
      * integrity.
      * </p>
-     * 
+     *
      * <h3>Menu Options:</h3>
      * <ol>
      * <li>Create Patient History - Record a new procedure performed on a
@@ -134,7 +134,7 @@ public class PatientHistoryCLI extends CLI {
      * procedures
      * they receive, maintaining a complete medical history with financial tracking.
      * </p>
-     * 
+     *
      * <h3>Required Information:</h3>
      * <ul>
      * <li><b>History ID</b> - Unique identifier for this history record</li>
@@ -148,7 +148,7 @@ public class PatientHistoryCLI extends CLI {
      * <li><b>Doctor Name</b> - Name of the physician who performed the
      * procedure</li>
      * </ul>
-     * 
+     *
      * @see PatientHistoryDAO#createPatientHistory(PatientHistory)
      */
     private void createPatientHistory() {
@@ -163,7 +163,14 @@ public class PatientHistoryCLI extends CLI {
         String doctorId = getRequiredStringInput("Enter Doctor ID: ");
 
         // Create patient history object with collected data
-        PatientHistory patientHistory = new PatientHistory(id, patientId, procedureId, date, billing, doctorId);
+        PatientHistory patientHistory = new PatientHistory(
+            id,
+            patientId,
+            procedureId,
+            date,
+            billing,
+            doctorId
+        );
 
         // Attempt to save patient history record to database
         try {
@@ -174,7 +181,9 @@ public class PatientHistoryCLI extends CLI {
             }
         } catch (Exception e) {
             // Handle database errors (e.g., foreign key violations, duplicate IDs)
-            System.out.println("Error creating patient history: " + e.getMessage());
+            System.out.println(
+                "Error creating patient history: " + e.getMessage()
+            );
         }
     }
 
@@ -187,7 +196,83 @@ public class PatientHistoryCLI extends CLI {
     }
 
     private void updatePatientHistory() {
-        System.out.println("\n--- Update Patient History (WIP) ---");
+        System.out.println("\n--- Update Patient History ---");
+
+        String patientHistoryID = getRequiredStringInput("Enter History ID: ");
+        PatientHistory history;
+        try {
+            history = patientHistoryDAO.getPatientHistory(patientHistoryID);
+        } catch (SQLException e) {
+            System.out.println("Error retrieving record: " + e.getMessage());
+            return;
+        }
+
+        if (history == null) {
+            System.out.println("Record not found");
+            return;
+        }
+
+        String input;
+
+        input = getStringInput("Update Patient ID (leave empty to skip): ");
+        if (!input.isEmpty()) {
+            try {
+                history.setPatientId(Integer.parseInt(input));
+            } catch (NumberFormatException e) {
+                System.out.println(
+                    "Invalid Patient ID. Please enter a valid number."
+                );
+                return;
+            }
+        }
+
+        input = getStringInput("Update Procedure ID (leave empty to skip): ");
+        if (!input.isEmpty()) {
+            history.setProcedureId(input);
+        }
+
+        input = getStringInput(
+            "Update Date of Procedure (yyyy-MM-dd, leave empty to skip): "
+        );
+        if (!input.isEmpty()) {
+            try {
+                LocalDate date = LocalDate.parse(input, DATE_FORMATTER);
+                history.setDate(date);
+            } catch (Exception e) {
+                System.out.println(
+                    "Invalid date format. Please use yyyy-MM-dd format."
+                );
+                return;
+            }
+        }
+
+        input = getStringInput("Update Billing Amount (leave empty to skip): ");
+        if (!input.isEmpty()) {
+            try {
+                history.setBilling(Double.parseDouble(input));
+            } catch (NumberFormatException e) {
+                System.out.println(
+                    "Invalid billing amount. Please enter a valid number."
+                );
+                return;
+            }
+        }
+
+        input = getStringInput("Update Doctor ID (leave empty to skip): ");
+        if (!input.isEmpty()) {
+            history.setDoctorId(input);
+        }
+
+        try {
+            boolean update = patientHistoryDAO.updatePatientHistory(history);
+            if (update) {
+                System.out.println("Patient history has been updated");
+            } else {
+                System.out.println("Update failed");
+            }
+        } catch (SQLException e) {
+            System.out.println("Update failed: " + e.getMessage());
+        }
     }
 
     private void deletePatientHistory() {

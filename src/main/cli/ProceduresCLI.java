@@ -1,5 +1,6 @@
 package main.cli;
 
+import java.sql.SQLException;
 import main.dao.ProceduresDAO;
 import main.models.Procedures;
 import main.util.Database;
@@ -15,7 +16,7 @@ import main.util.Database;
  * descriptive name. These procedures are referenced when creating patient
  * history records.
  * </p>
- * 
+ *
  * <h3>Features:</h3>
  * <ul>
  * <li>Create new procedure definitions</li>
@@ -24,14 +25,14 @@ import main.util.Database;
  * <li>Update procedure information</li>
  * <li>Delete procedure definitions</li>
  * </ul>
- * 
+ *
  * <h3>Example Procedures:</h3>
  * <ul>
  * <li>LAB-001: Complete Blood Count</li>
  * <li>IMG-005: MRI Scan Brain</li>
  * <li>SURG-012: Appendectomy</li>
  * </ul>
- * 
+ *
  * @see ProceduresDAO
  * @see Procedures
  */
@@ -47,7 +48,7 @@ public class ProceduresCLI extends CLI {
      * <p>
      * Initializes the procedures data access object for database operations.
      * </p>
-     * 
+     *
      * @param db the Database instance for database operations
      * @throws NullPointerException if db is null
      */
@@ -64,7 +65,7 @@ public class ProceduresCLI extends CLI {
      * until the user chooses to return to the main menu. Procedures defined here
      * become available for use when recording patient history.
      * </p>
-     * 
+     *
      * <h3>Menu Options:</h3>
      * <ol>
      * <li>Create Procedure - Add a new procedure to the catalog</li>
@@ -131,21 +132,21 @@ public class ProceduresCLI extends CLI {
      * records.
      * Each procedure is identified by a unique ID and has a descriptive name.
      * </p>
-     * 
+     *
      * <h3>Required Information:</h3>
      * <ul>
      * <li><b>Procedure ID</b> - Unique identifier (e.g., "P001", "XRAY-001")</li>
      * <li><b>Procedure Name</b> - Descriptive name (e.g., "Blood Test", "X-Ray
      * Chest")</li>
      * </ul>
-     * 
+     *
      * <h3>Examples:</h3>
      * <ul>
      * <li>ID: "LAB-001", Name: "Complete Blood Count"</li>
      * <li>ID: "IMG-005", Name: "MRI Scan Brain"</li>
      * <li>ID: "SURG-012", Name: "Appendectomy"</li>
      * </ul>
-     * 
+     *
      * @see ProceduresDAO#createProcedure(Procedures)
      */
     private void createProcedure() {
@@ -154,12 +155,20 @@ public class ProceduresCLI extends CLI {
         // Collect procedure information with validation
         String id = getRequiredStringInput("Enter Procedure ID: ");
         String name = getRequiredStringInput("Enter Procedure Name: ");
-        String description = getRequiredStringInput("Enter Procedure Description: ");
+        String description = getRequiredStringInput(
+            "Enter Procedure Description: "
+        );
         int duration = getIntInput("Enter Procedure Duration (minutes): ");
         String doctorId = getRequiredStringInput("Enter Doctor ID: ");
 
         // Create procedure object with collected data
-        Procedures procedure = new Procedures(id, name, description, duration, doctorId);
+        Procedures procedure = new Procedures(
+            id,
+            name,
+            description,
+            duration,
+            doctorId
+        );
 
         // Attempt to save procedure to database
         try {
@@ -183,7 +192,67 @@ public class ProceduresCLI extends CLI {
     }
 
     private void updateProcedure() {
-        System.out.println("\n--- Update Procedure (WIP) ---");
+        System.out.println("\n--- Update Procedure ---");
+
+        String id = getRequiredStringInput("Enter Procedure ID: ");
+        Procedures procedures;
+        try {
+            procedures = proceduresDAO.getProcedure(id);
+        } catch (SQLException e) {
+            System.out.println("Error fetching procedure: " + e.getMessage());
+            return;
+        }
+
+        if (procedures == null) {
+            System.out.println("Procedure not found");
+            return;
+        }
+
+        String input = getStringInput(
+            "Update procedure name (leave empty to skip): "
+        );
+        if (!input.isEmpty()) {
+            procedures.setName(input);
+        }
+
+        input = getStringInput(
+            "Update procedure description (leave empty to skip): "
+        );
+        if (!input.isEmpty()) {
+            procedures.setDescription(input);
+        }
+
+        input = getStringInput(
+            "Update procedure duration (leave empty to skip): "
+        );
+        if (!input.isEmpty()) {
+            try {
+                procedures.setDuration(Integer.parseInt(input));
+            } catch (NumberFormatException e) {
+                System.out.println(
+                    "Invalid duration. Please enter a valid number."
+                );
+                return;
+            }
+        }
+
+        input = getStringInput(
+            "Update procedure Doctor ID (leave empty to skip): "
+        );
+        if (!input.isEmpty()) {
+            procedures.setDoctorId(input);
+        }
+
+        try {
+            boolean update = proceduresDAO.updateProcedure(procedures);
+            if (update) {
+                System.out.println("Procedure information has been updated");
+            } else {
+                System.out.println("Update failed");
+            }
+        } catch (SQLException e) {
+            System.out.println("Update failed: " + e.getMessage());
+        }
     }
 
     private void deleteProcedure() {

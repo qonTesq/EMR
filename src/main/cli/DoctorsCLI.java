@@ -1,5 +1,6 @@
 package main.cli;
 
+import java.sql.SQLException;
 import main.dao.DoctorDAO;
 import main.models.Doctors;
 import main.util.Database;
@@ -50,6 +51,7 @@ public class DoctorsCLI extends CLI {
         while (true) {
             System.out.println("\n=== Doctor Management ===");
             System.out.println("1. Create Doctor");
+            System.out.println("2. Update Doctor");
             System.out.println("0. Back to Main Menu");
             System.out.print("Choose an option: ");
 
@@ -58,6 +60,9 @@ public class DoctorsCLI extends CLI {
             switch (choice) {
                 case 1:
                     createDoctor();
+                    break;
+                case 2:
+                    updateDoctor();
                     break;
                 case 0:
                     return;
@@ -94,6 +99,41 @@ public class DoctorsCLI extends CLI {
         } catch (Exception e) {
             // Handle database errors (e.g., duplicate doctor ID)
             System.out.println("Error creating doctor: " + e.getMessage());
+        }
+    }
+
+    private void updateDoctor() {
+        System.out.println("\n--- Update Doctor ---");
+
+        String id = getRequiredStringInput("Enter Doctor ID: ");
+        if (!id.startsWith("DR")) {
+            System.out.println("Invalid ID.");
+            return;
+        }
+
+        Doctors doctor;
+        try {
+            doctor = doctorDAO.getDoctor(id);
+        } catch (SQLException e) {
+            System.out.println("Error fetching records: " + e.getMessage());
+            return;
+        }
+
+        if (doctor == null) {
+            System.out.println("Doctor not found");
+            return;
+        }
+
+        String updatedDoctor = getRequiredStringInput(
+            "Enter new doctor name: "
+        );
+        doctor.setName(updatedDoctor);
+
+        boolean update = doctorDAO.updateDoctor(doctor);
+        if (update) {
+            System.out.println("Doctor information has been updated");
+        } else {
+            System.out.println("Update failed");
         }
     }
 }
