@@ -1,7 +1,10 @@
 package main.dao;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 import java.util.List;
 import main.models.Doctors;
 import main.util.Database;
@@ -54,6 +57,59 @@ public class DoctorDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+
+    public Doctors readDoctor(String id) throws SQLException {
+        // SQL select statement for creating a new procedure record
+        String sql = "SELECT * FROM doctors WHERE id = ?";
+
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql))
+        {
+            stmt.setString(1, id);
+            var queryResult = stmt.executeQuery();
+            if(queryResult.next())
+                {
+                 Doctors doctor = new Doctors(
+                queryResult.getString("id"),
+                queryResult.getString("name")
+                );
+                return doctor;
+            } 
+            else 
+            {
+                return null;
+            }
+        }
+    }
+
+    public ArrayList<Doctors> readAllDoctors() throws SQLException {
+       
+        // SQL select statement for creating a new procedure record
+        String sql = "SELECT * FROM doctors";
+
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql))
+        {
+            ResultSet queryResult = stmt.executeQuery();
+            
+            ArrayList<Doctors> doctors = new ArrayList<>();
+
+            while(queryResult.next()) {
+                Doctors doctor = new Doctors(
+                queryResult.getString("id"),
+                queryResult.getString("name")
+                );
+                doctors.add(doctor);
+            } 
+            
+            return doctors;
+            
+        }
+        catch (SQLException e) 
+        {
+            e.printStackTrace();
+            return new ArrayList<>(); 
+        }
+    }
+    
 
     /**
      * Retrieves a doctor record by their ID.

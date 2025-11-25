@@ -1,8 +1,12 @@
 package main.dao;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import main.models.PatientHistory;
+import main.models.Procedures;
 import main.models.Procedures;
 import main.util.Database;
 
@@ -12,7 +16,7 @@ import main.util.Database;
  * table.
  *
  * Medical procedures define the available treatments and services that can be
- * performed on patients.
+ * performed on procedures.
  */
 public class ProceduresDAO {
 
@@ -56,6 +60,64 @@ public class ProceduresDAO {
 
             // Execute the insert and return success status
             return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public Procedures readProcedures(String id) throws SQLException {
+        // SQL select statement for creating a new procedure record
+        String sql = "SELECT * FROM procedures WHERE id = ?";
+
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql))
+        {
+            stmt.setString(1, id);
+            var queryResult = stmt.executeQuery();
+            if(queryResult.next())
+                {
+                Procedures procedure = new Procedures(
+                queryResult.getString("id"),
+                queryResult.getString("name"),
+                queryResult.getString("description"),
+                queryResult.getInt("duration"),
+                queryResult.getString("doctorId")
+                );
+                return procedure;
+            } 
+            else 
+            {
+                return null;
+            }
+        }
+    }
+
+    public ArrayList<Procedures> readAllProcedures() throws SQLException {
+       
+        // SQL select statement for creating a new procedure record
+        String sql = "SELECT * FROM procedures";
+
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql))
+        {
+            ResultSet queryResult = stmt.executeQuery();
+            
+            ArrayList<Procedures> procedures = new ArrayList<>();
+
+            while(queryResult.next()) {
+                Procedures procedure = new Procedures(
+                queryResult.getString("id"),
+                queryResult.getString("name"),
+                queryResult.getString("description"),
+                queryResult.getInt("duration"),
+                queryResult.getString("doctorId")
+                );
+                procedures.add(procedure);
+            } 
+            
+            return procedures;
+            
+        }
+        catch (SQLException e) 
+        {
+            e.printStackTrace();
+            return new ArrayList<>(); 
         }
     }
 

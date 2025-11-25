@@ -3,9 +3,13 @@ package main.dao;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.List;import java.sql.ResultSet;
+
 import main.models.Patients;
 import main.util.Database;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.time.LocalDate;
 
 /**
  * Data Access Object (DAO) for managing patient records in the database.
@@ -68,6 +72,71 @@ public class PatientDAO {
 
             // Execute the insert and return success status
             return stmt.executeUpdate() > 0;
+        }
+    }
+    
+    public Patients readPatient(int mrn) throws SQLException {
+       
+        // SQL select statement for creating a new patient record
+        String sql = "SELECT * FROM patients WHERE mrn = ?";
+
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql))
+        {
+            stmt.setInt(1, mrn);
+            var queryResult = stmt.executeQuery();
+            if(queryResult.next()) {
+                Patients patient = new Patients(
+                queryResult.getInt("mrn"), 
+                queryResult.getString("fname"),
+                queryResult.getString("lname"),
+                queryResult.getDate("dob").toLocalDate(),
+                queryResult.getString("address"),
+                queryResult.getString("state"),
+                queryResult.getString("city"),
+                queryResult.getInt("zip"),
+                queryResult.getString("insurance"),
+                queryResult.getString("email"));
+                return patient;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public ArrayList<Patients> readAllPatients() throws SQLException {
+       
+        // SQL select statement for creating a new patient record
+        String sql = "SELECT * FROM patients";
+
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql))
+        {
+            ResultSet queryResult = stmt.executeQuery();
+            
+            ArrayList<Patients> patients = new ArrayList<>();
+
+            while(queryResult.next()) {
+                Patients patient = new Patients(
+                queryResult.getInt("mrn"), 
+                queryResult.getString("fname"),
+                queryResult.getString("lname"),
+                queryResult.getDate("dob").toLocalDate(),
+                queryResult.getString("address"),
+                queryResult.getString("state"),
+                queryResult.getString("city"),
+                queryResult.getInt("zip"),
+                queryResult.getString("insurance"),
+                queryResult.getString("email"));
+                
+                patients.add(patient);
+            } 
+            
+            return patients;
+            
+        }
+        catch (SQLException e) 
+        {
+            e.printStackTrace();
+            return new ArrayList<>(); 
         }
     }
 

@@ -1,5 +1,12 @@
 package main.dao;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.sql.Date;
+
+import main.models.PatientHistory;
 import java.sql.*;
 import java.time.LocalDate;
 import main.models.PatientHistory;
@@ -11,7 +18,7 @@ import main.util.Database;
  * This class provides methods to perform CRUD operations on the
  * patient_history table.
  *
- * Patient history records link patients to medical procedures, including
+ * Patient history records link patients to medical PatientHistory, including
  * billing information and attending doctors.
  */
 public class PatientHistoryDAO {
@@ -31,7 +38,7 @@ public class PatientHistoryDAO {
     /**
      * Creates a new patient history record in the database.
      * This method inserts a new record into the patient_history table that links
-     * a patient to a medical procedure with associated billing and doctor
+     * a patient to a medical patientHistory with associated billing and doctor
      * information.
      *
      * @param patientHistory the PatientHistory object containing all record
@@ -45,7 +52,7 @@ public class PatientHistoryDAO {
         throws SQLException {
         // SQL INSERT statement for creating a new patient history record
         String sql =
-            "INSERT INTO patient_history (id, patientId, procedureId, date, billing, doctorId) VALUES (?, ?, ?, ?, ?, ?)";
+            "INSERT INTO patient_history (id, patientId, patientHistoryId, date, billing, doctorId) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (
             PreparedStatement stmt = db.getConnection().prepareStatement(sql)
@@ -54,12 +61,72 @@ public class PatientHistoryDAO {
             stmt.setString(1, patientHistory.getId());
             stmt.setInt(2, patientHistory.getPatientId());
             stmt.setString(3, patientHistory.getProcedureId());
-            stmt.setDate(4, Date.valueOf(patientHistory.getDate()));
-            stmt.setDouble(5, patientHistory.getBilling());
-            stmt.setString(6, patientHistory.getDoctorId());
+            stmt.setDate(3, Date.valueOf(patientHistory.getDate()));
+            stmt.setDouble(4, patientHistory.getBilling());
+            stmt.setString(5, patientHistory.getDoctorId());
 
             // Execute the insert and return success status
             return stmt.executeUpdate() > 0;
+        }
+    }
+     public PatientHistory readPatientHistory(int mrn) throws SQLException {
+        // SQL select statement for creating a new patient record
+        String sql = "SELECT * FROM patient_history WHERE patientId = ?";
+
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql))
+        {
+            stmt.setInt(1, mrn);
+            var queryResult = stmt.executeQuery();
+            if(queryResult.next())
+                {
+                PatientHistory patientHistory = new PatientHistory(
+                queryResult.getString("id"),
+                queryResult.getInt("patientId"),
+                queryResult.getString("procedureId"),
+                queryResult.getDate("date").toLocalDate(),
+                queryResult.getDouble("billing"),
+                queryResult.getString("doctorId")
+                );  
+                return patientHistory;
+
+            } 
+            else 
+            {
+                return null;
+            }
+        }
+    }
+
+    public ArrayList<PatientHistory> readAllPatientHistories() throws SQLException {
+       
+        // SQL select statement for creating a new patientHistory record
+        String sql = "SELECT * FROM patient_history";
+
+        try(PreparedStatement stmt = db.getConnection().prepareStatement(sql))
+        {
+            ResultSet queryResult = stmt.executeQuery();
+            
+            ArrayList<PatientHistory> patientHistories = new ArrayList<>();
+
+            while(queryResult.next()) {
+                PatientHistory patientHistory = new PatientHistory(
+                queryResult.getString("id"),
+                queryResult.getInt("patientId"),
+                queryResult.getString("procedureId"),
+                queryResult.getDate("date").toLocalDate(),
+                queryResult.getDouble("billing"),
+                queryResult.getString("doctorId")
+                );  
+                patientHistories.add(patientHistory);
+            } 
+            
+            return patientHistories;
+            
+        }
+        catch (SQLException e) 
+        {
+            e.printStackTrace();
+            return new ArrayList<>(); 
         }
     }
 
