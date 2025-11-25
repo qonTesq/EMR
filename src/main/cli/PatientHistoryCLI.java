@@ -89,7 +89,7 @@ public class PatientHistoryCLI extends CLI {
                     readPatientHistory();
                     break;
                 case 3:
-                    readAllPatientHistory();
+                    readAllPatientHistories();
                     break;
                 case 4:
                     updatePatientHistory();
@@ -187,12 +187,43 @@ public class PatientHistoryCLI extends CLI {
         }
     }
 
-    private void readPatientHistory() {
-        System.out.println("\n--- Read Patient History (WIP) ---");
+    private void readPatientHistory() 
+    {
+        System.out.println("\n--- Read Patient History ---");
+
+        // Collect doctor information with validation
+        int id = getIntInput("Enter Patient ID (aka MRN): ");
+        
+        // Attempt to read patient history from database
+        try {
+            if (patientHistoryDAO.readPatientHistory(id) != null) {
+                System.out.println(patientHistoryDAO.readPatientHistory(id).toString());
+            } else {
+                System.out.println("Patient History for Patient with ID" + id + " is not found");
+            }
+        } catch (Exception e) {
+            // Handle database errors (e.g., duplicate doctor ID)
+            System.out.println("Error reading Patient History: " + e.getMessage());
+        }
     }
 
-    private void readAllPatientHistory() {
-        System.out.println("\n--- All Patient History (WIP) ---");
+    private void readAllPatientHistories() {
+        System.out.println("\n--- Read All Patient Histories ---");
+
+        // Attempt to read all patient histories from the database
+        try {
+            if (!patientHistoryDAO.readAllPatientHistories().isEmpty())
+            {
+                System.out.println(patientHistoryDAO.readAllPatientHistories().toString());
+            } 
+            else 
+            {
+                System.out.println("Error: could not find any recorded Patient Histories");
+            }
+        } catch (Exception e) {
+            // Handle database errors (e.g., duplicate doctor ID)
+            System.out.println("Error reading all Patient Histories: " + e.getMessage());
+        }
     }
 
     private void updatePatientHistory() {

@@ -47,30 +47,53 @@ public class DoctorsCLI extends CLI {
      * the user chooses to exit.
      * </p>
      */
-    public void start() {
-        while (true) {
-            System.out.println("\n=== Doctor Management ===");
-            System.out.println("1. Create Doctor");
-            System.out.println("2. Update Doctor");
-            System.out.println("0. Back to Main Menu");
-            System.out.print("Choose an option: ");
-
-            int choice = getIntInput("");
+    public void start() 
+    {
+        boolean running = true;
+        while (running) {
+            showMenu();
+            int choice = getIntInput("Enter your choice: ");
 
             switch (choice) {
                 case 1:
                     createDoctor();
                     break;
                 case 2:
+                    readDoctor();
+                    break;
+                case 3:
+                    readAllDoctors();
+                    break;
+                case 4:
                     updateDoctor();
                     break;
-                case 0:
-                    return;
+                case 5:
+                    deleteDoctor();
+                    break;
+                case 6:
+                    running = false;
+                    System.out.println("\nReturning to main menu...");
+                    break;
                 default:
-                    System.out.println("Invalid option. Please try again.");
+                    System.out.println("Invalid choice. Please try again.");
             }
-        }
+        } 
+        
     }
+
+    private void showMenu()
+    {
+        System.out.println("\n=== Doctor Management ===");
+            System.out.println("1. Create Doctor");
+            System.out.println("2. Update Doctor");
+            System.out.println("2. Read Doctor by ID");
+            System.out.println("3. Read All Doctors");
+            System.out.println("4. Update Doctor");
+            System.out.println("5. Delete Doctor");
+            System.out.println("6. Back to Main Menu");
+            System.out.println("==================================");  
+    }
+
 
     /**
      * Creates a new doctor record in the database.
@@ -99,6 +122,46 @@ public class DoctorsCLI extends CLI {
         } catch (Exception e) {
             // Handle database errors (e.g., duplicate doctor ID)
             System.out.println("Error creating doctor: " + e.getMessage());
+        }
+    }
+
+    private void readDoctor() 
+    {
+        System.out.println("\n--- Read Doctor ---");
+
+        // Collect doctor information with validation
+        String id = getRequiredStringInput("Enter Doctor ID: ");
+        
+
+        // Attempt to read doctor from database
+        try {
+            if (doctorDAO.readDoctor(id) != null) {
+                System.out.println(doctorDAO.readDoctor(id).toString());
+            } else {
+                System.out.println("Doctor with ID" + id + " is not found");
+            }
+        } catch (Exception e) {
+            // Handle database errors (e.g., duplicate doctor ID)
+            System.out.println("Error reading doctor: " + e.getMessage());
+        }
+    }
+
+    private void readAllDoctors() {
+        System.out.println("\n--- Read All Doctor ---");
+
+        // Attempt to read all doctors from the database
+        try {
+            if (!doctorDAO.readAllDoctors().isEmpty())
+            {
+                System.out.println(doctorDAO.readAllDoctors().toString());
+            } 
+            else 
+            {
+                System.out.println("Error: could not find any recorded doctor");
+            }
+        } catch (Exception e) {
+            // Handle database errors (e.g., duplicate doctor ID)
+            System.out.println("Error reading all doctor: " + e.getMessage());
         }
     }
 
@@ -135,5 +198,10 @@ public class DoctorsCLI extends CLI {
         } else {
             System.out.println("Update failed");
         }
+    }
+
+    private void deleteDoctor()
+    {
+        
     }
 }

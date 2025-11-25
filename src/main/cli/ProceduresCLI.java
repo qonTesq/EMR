@@ -183,12 +183,44 @@ public class ProceduresCLI extends CLI {
         }
     }
 
-    private void readProcedure() {
-        System.out.println("\n--- Read Procedure (WIP) ---");
+    private void readProcedure() 
+    {
+        System.out.println("\n--- Read Procedure ---");
+
+        // Collect doctor information with validation
+        String id = getRequiredStringInput("Enter Procedure ID: ");
+        
+
+        // Attempt to read doctor from database
+        try {
+            if (proceduresDAO.readProcedure(id) != null) {
+                System.out.println(proceduresDAO.readProcedure(id).toString());
+            } else {
+                System.out.println("Procedure with ID" + id + " is not found");
+            }
+        } catch (Exception e) {
+            // Handle database errors (e.g., duplicate doctor ID)
+            System.out.println("Error reading procedure: " + e.getMessage());
+        }
     }
 
     private void readAllProcedures() {
-        System.out.println("\n--- All Procedures (WIP) ---");
+        System.out.println("\n--- Read All Doctor ---");
+
+        // Attempt to read all doctors from the database
+        try {
+            if (!proceduresDAO.readAllProcedures().isEmpty())
+            {
+                System.out.println(proceduresDAO.readAllProcedures().toString());
+            } 
+            else 
+            {
+                System.out.println("Error: could not find any recorded procedures");
+            }
+        } catch (Exception e) {
+            // Handle database errors (e.g., duplicate doctor ID)
+            System.out.println("Error reading all doctor: " + e.getMessage());
+        }
     }
 
     private void updateProcedure() {

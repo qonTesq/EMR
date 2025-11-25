@@ -181,13 +181,49 @@ public class PatientsCLI extends CLI {
         }
     }
 
-    private void readPatient() {
-        System.out.println("\n--- Read Patient (WIP) ---");
+    private void readPatient() 
+    {
+        System.out.println("\n--- Read Patient ---");
+
+        // Collect doctor information with validation
+        int id = getIntInput("Enter MRN: ");
+        
+
+        // Attempt to read patient from database
+        try 
+        {
+            if (patientDAO.readPatient(id) != null) 
+            {
+                System.out.println(patientDAO.readPatient(id).toString());
+            } else 
+            {
+                System.out.println("Patient with MRN" + id + " is not found");
+            }
+        } catch (Exception e) {
+            // Handle database errors (e.g., duplicate doctor ID)
+            System.out.println("Error reading patient: " + e.getMessage());
+        }
     }
 
     private void readAllPatients() {
-        System.out.println("\n--- All Patients (WIP) ---");
+        System.out.println("\n--- Read All Doctors ---");
+
+        // Attempt to read all doctors from the database
+        try {
+            if (!patientDAO.readAllPatients().isEmpty())
+            {
+                System.out.println(patientDAO.readAllPatients().toString());
+            } 
+            else 
+            {
+                System.out.println("Error: could not find any recorded patient");
+            }
+        } catch (Exception e) {
+            // Handle database errors (e.g., duplicate doctor ID)
+            System.out.println("Error reading all Patients: " + e.getMessage());
+        }
     }
+    
 
     private void updatePatient() {
         System.out.println("\n--- Update Patient ---");

@@ -63,7 +63,7 @@ public class ProceduresDAO {
         }
     }
 
-    public Procedures readProcedures(String id) throws SQLException {
+    public Procedures readProcedure(String id) throws SQLException {
         // SQL select statement for creating a new procedure record
         String sql = "SELECT * FROM procedures WHERE id = ?";
 
