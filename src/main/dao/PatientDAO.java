@@ -1,8 +1,9 @@
 package main.dao;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Date;
+
 import main.models.Patients;
 import main.util.Database;
 
@@ -59,22 +60,5 @@ public class PatientDAO {
             // Execute the insert and return success status
             return stmt.executeUpdate() > 0;
         }
-    }
-
-    public boolean deletePatient(int mrn) throws SQLException {
-    String sql = "DELETE FROM patients WHERE mrn = ?";
-
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
-            
-            stmt.setInt(1, mrn);
-            
-
-            // executeUpdate() returns number of rows affected
-            return stmt.executeUpdate() > 0;
-
-
-        }
-
-        
     }
 }

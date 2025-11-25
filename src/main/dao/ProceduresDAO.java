@@ -2,6 +2,7 @@ package main.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import main.models.Procedures;
 import main.util.Database;
 
@@ -54,16 +55,4 @@ public class ProceduresDAO {
             return stmt.executeUpdate() > 0;
         }
     }
-
-    public boolean deleteProcedure(String id) throws SQLException {
-    String sql = "DELETE FROM procedures WHERE id = ?";
-
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, id);
-
-            // executeUpdate() returns number of rows affected
-            return stmt.executeUpdate() > 0;
-        }
-    }
-
 }

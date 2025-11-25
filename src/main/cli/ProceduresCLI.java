@@ -188,18 +188,5 @@ public class ProceduresCLI extends CLI {
 
     private void deleteProcedure() {
         System.out.println("\n--- Delete Procedure (WIP) ---");
-        String id = getStringInput("Enter Procedure ID: ");
-
-        try {
-            if (proceduresDAO.deleteProcedure(id)) {
-                System.out.println("\nPatient deleted successfully!");
-            } else {
-                System.out.println("\n!!! Failed to delete patient !!!");
-            }
-        } catch (Exception e) {
-            // Handle database errors (e.g., duplicate MRN, connection issues)
-            System.out.println("\n!!! Error deleting patient: " + e.getMessage() + " !!!");
-        }
     }
 }
-

@@ -2,6 +2,7 @@ package main.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import main.models.Doctors;
 import main.util.Database;
 
@@ -48,17 +49,6 @@ public class DoctorDAO {
             stmt.setString(2, doctor.getName());
 
             // Execute the insert and return success status
-            return stmt.executeUpdate() > 0;
-        }
-    }
-
-    public boolean deleteDoctor(String doctorId) throws SQLException {
-    String sql = "DELETE FROM doctors WHERE id = ?";
-
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, doctorId);
-
-            // executeUpdate() returns number of rows affected
             return stmt.executeUpdate() > 0;
         }
     }

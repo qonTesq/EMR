@@ -192,18 +192,5 @@ public class PatientHistoryCLI extends CLI {
 
     private void deletePatientHistory() {
         System.out.println("\n--- Delete Patient History (WIP) ---");
-
-        String id = getStringInput("Enter Patient History ID: ");
-
-    try {
-        if (patientHistoryDAO.deletePatientHistory(id)) {
-            System.out.println("\nPatient history deleted successfully!");
-        } else {
-            System.out.println("\n!!! Failed to delete patient history !!!");
-        }
-    } catch (Exception e) {
-        // Handle database issues (table not found, wrong column, bad connection, etc.)
-        System.out.println("\n!!! Error deleting patient history: " + e.getMessage() + " !!!");
-    }
     }
 }

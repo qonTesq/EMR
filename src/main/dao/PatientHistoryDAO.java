@@ -1,8 +1,9 @@
 package main.dao;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Date;
+
 import main.models.PatientHistory;
 import main.util.Database;
 
@@ -56,16 +57,6 @@ public class PatientHistoryDAO {
             stmt.setString(6, patientHistory.getDoctorId());
 
             // Execute the insert and return success status
-            return stmt.executeUpdate() > 0;
-        }
-    }
-    public boolean deletePatientHistory(String historyId) throws SQLException {
-    String sql = "DELETE FROM patient_history WHERE id = ?";
-
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, historyId);
-
-            // executeUpdate() returns the number of rows affected
             return stmt.executeUpdate() > 0;
         }
     }
