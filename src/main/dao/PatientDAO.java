@@ -52,7 +52,24 @@ public class PatientDAO {
         }
     }
 
-    public Patients readPatient(int mrn) throws SQLException {
+    public boolean deletePatient(int mrn) throws SQLException {
+    String sql = "DELETE FROM patients WHERE mrn = ?";
+
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+            
+            stmt.setInt(1, mrn);
+            
+
+            // executeUpdate() returns number of rows affected
+            return stmt.executeUpdate() > 0;
+
+
+        }
+
+        
+    }
+
+    public Patients getPatient(int mrn) throws SQLException {
         String sql = "SELECT * FROM patients WHERE mrn = ?";
         try (
             PreparedStatement stmt = db.getConnection().prepareStatement(sql)
@@ -144,11 +161,5 @@ public class PatientDAO {
         } catch (SQLException e) {
             return false;
         }
-    }
-
-    public boolean deletePatient(int mrn) throws SQLException {
-        throw new UnsupportedOperationException(
-            "deletePatient not yet implemented"
-        );
     }
 }

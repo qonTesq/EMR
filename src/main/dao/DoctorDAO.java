@@ -29,8 +29,18 @@ public class DoctorDAO {
         }
     }
 
-    public Doctors readDoctor(String id) throws SQLException {
-        // SQL select statement for creating a new procedure record
+    public boolean deleteDoctor(String doctorId) throws SQLException {
+    String sql = "DELETE FROM doctors WHERE id = ?";
+
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, doctorId);
+
+            // executeUpdate() returns number of rows affected
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public Doctors getDoctor(String id) throws SQLException {
         String sql = "SELECT * FROM doctors WHERE id = ?";
 
         try (
@@ -79,11 +89,5 @@ public class DoctorDAO {
         } catch (SQLException e) {
             return false;
         }
-    }
-
-    public boolean deleteDoctor(String id) throws SQLException {
-        throw new UnsupportedOperationException(
-            "deleteDoctor not yet implemented"
-        );
     }
 }

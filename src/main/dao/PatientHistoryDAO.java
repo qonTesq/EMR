@@ -35,6 +35,16 @@ public class PatientHistoryDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+    public boolean deletePatientHistory(String historyId) throws SQLException {
+    String sql = "DELETE FROM patient_history WHERE id = ?";
+
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, historyId);
+
+            // executeUpdate() returns the number of rows affected
+            return stmt.executeUpdate() > 0;
+        }
+    }
 
     public PatientHistory readPatientHistory(String id) throws SQLException {
         String sql = "SELECT * FROM patient_history WHERE id = ?";
@@ -99,11 +109,5 @@ public class PatientHistoryDAO {
         } catch (SQLException e) {
             return false;
         }
-    }
-
-    public boolean deletePatientHistory(String id) throws SQLException {
-        throw new UnsupportedOperationException(
-            "deletePatientHistory not yet implemented"
-        );
     }
 }

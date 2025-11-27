@@ -125,6 +125,25 @@ public class DoctorsCLI extends CLI {
         System.out.println();
     }
 
+    private void deleteDoctor(){
+        System.out.println("\n--- Delete Doctor ---");
+
+        String id = getStringInput("Enter Doctor ID to delete (e.g., DR1): ");
+
+        try {
+            boolean deleted = doctorDAO.deleteDoctor(id);
+
+            if (deleted) {
+                System.out.println("\nDoctor deleted successfully!");
+            } else {
+                System.out.println("\n!!! Failed to delete doctor (ID not found) !!!");
+            }
+
+        } catch (Exception e) {
+            System.out.println("\n!!! Error deleting doctor: " + e.getMessage() + " !!!");
+        }
+    }
+
     private void updateDoctor() {
         System.out.println("-----");
         System.out.println("Update Doctor");
