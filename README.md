@@ -4,9 +4,58 @@ A CLI program for managing electronic medical records.
 
 ## Features
 
-- CLI interface for user interaction.
-- MySQL database integration.
-- Menu-driven navigation between different entities.
+- CLI interface for user interaction
+- MySQL database integration
+- Menu-driven navigation between different entities
+- Full CRUD operations for all entities
+- Input validation and foreign key constraint checking
+- Service layer for business logic
+- Clean DAO pattern with BaseDAO interface
+
+## Project Structure
+
+```
+src/main/
+├── App.java                    # Application entry point
+├── cli/                        # Command-line interface classes
+│   ├── CLI.java                # Base CLI with common utilities
+│   ├── MainCLI.java            # Main menu navigation
+│   ├── DoctorsCLI.java         # Doctor management
+│   ├── PatientsCLI.java        # Patient management
+│   ├── ProceduresCLI.java      # Procedure management
+│   └── PatientHistoryCLI.java  # Patient history management
+├── config/
+│   └── DatabaseConfig.java     # Database configuration
+├── dao/                        # Data Access Objects
+│   ├── BaseDAO.java            # Generic DAO interface
+│   ├── DoctorDAO.java
+│   ├── PatientDAO.java
+│   ├── ProcedureDAO.java
+│   └── PatientHistoryDAO.java
+├── exceptions/                 # Custom exceptions
+│   ├── EMRException.java
+│   ├── DatabaseException.java
+│   ├── EntityNotFoundException.java
+│   └── ValidationException.java
+├── models/                     # Entity models
+│   ├── Doctor.java
+│   ├── Patient.java
+│   ├── Procedure.java
+│   └── PatientHistory.java
+├── service/                    # Business logic layer
+│   ├── DoctorService.java
+│   ├── PatientService.java
+│   ├── ProcedureService.java
+│   └── PatientHistoryService.java
+├── util/
+│   └── Database.java           # Database connection management
+└── validation/                 # Input validation
+    ├── ValidationUtils.java
+    ├── DoctorValidator.java
+    ├── PatientValidator.java
+    ├── ProcedureValidator.java
+    └── PatientHistoryValidator.java
+```
 
 ## Environment Configuration
 
@@ -69,22 +118,49 @@ Never commit the `.env` file to version control. Add `.env` to your `.gitignore`
 
 Make sure you have a MySQL database with the following tables. All fields are required for each entity:
 
+### Doctors Table
+
+```sql
+CREATE TABLE `doctors` (
+  `id` varchar(25) NOT NULL,
+  `name` varchar(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+);
+```
+
 ### Patients Table
 
 ```sql
 CREATE TABLE `patients` (
-  `lname` text NOT NULL,
+  `mrn` int NOT NULL,
   `fname` text NOT NULL,
+  `lname` text NOT NULL,
   `dob` text NOT NULL,
   `address` text NOT NULL,
   `state` text NOT NULL,
   `city` text NOT NULL,
   `zip` int NOT NULL,
   `insurance` text NOT NULL,
-  `mrn` int NOT NULL,
   `email` text NOT NULL,
   PRIMARY KEY (`mrn`),
   UNIQUE KEY `mrn_UNIQUE` (`mrn`)
+);
+```
+
+### Procedures Table
+
+```sql
+CREATE TABLE `procedures` (
+  `id` varchar(25) NOT NULL,
+  `name` text NOT NULL,
+  `description` text NOT NULL,
+  `duration` int NOT NULL,
+  `doctorId` varchar(25) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `doctorId_fk_idx` (`doctorId`),
+  CONSTRAINT `proc_to_doc_fk` FOREIGN KEY (`doctorId`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 ```
 
@@ -109,33 +185,6 @@ CREATE TABLE `patient_history` (
 );
 ```
 
-### Procedures Table
-
-```sql
-CREATE TABLE `procedures` (
-  `id` varchar(25) NOT NULL,
-  `name` text NOT NULL,
-  `description` text NOT NULL,
-  `duration` int NOT NULL,
-  `doctorId` varchar(25) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `doctorId_fk_idx` (`doctorId`),
-  CONSTRAINT `proc_to_doc_fk` FOREIGN KEY (`doctorId`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-);
-```
-
-### Doctors Table
-
-```sql
-CREATE TABLE `doctors` (
-  `id` varchar(25) NOT NULL,
-  `name` varchar(45) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
-);
-```
-
 ## Running the Program
 
 1. Compile the source code:
@@ -146,6 +195,11 @@ CREATE TABLE `doctors` (
 
 2. Run the program:
    ```
+   java -cp "bin;lib/mysql-connector-j-9.4.0.jar" main.App
+   ```
+
+   On Linux/macOS use `:` instead of `;`:
+   ```
    java -cp "bin:lib/mysql-connector-j-9.4.0.jar" main.App
    ```
 
@@ -153,15 +207,23 @@ CREATE TABLE `doctors` (
 
 The program provides a main menu where you can choose which entity to manage:
 
-1. **Patients**: Manage patient records with full CRUD operations
-2. **Patient History**: Manage patient procedure history records
+1. **Doctors**: Manage doctor records
+2. **Patients**: Manage patient records
 3. **Procedures**: Manage available medical procedures
+4. **Patient History**: Manage patient procedure history records
 
 Each entity has its own submenu with the following operations:
 
-- Create (with validation for all required fields)
-- Read (single record or all records)
-- Update (modify existing records)
-- Delete (remove records with confirmation)
+- **Create**: Add new records with validation for all required fields
+- **Read**: View a single record by ID or all records
+- **Update**: Modify existing records with field-by-field updates
+- **Delete**: Remove records with confirmation prompt
 
-When creating records, all fields are validated to ensure no empty values are accepted.
+### Validation Features
+
+- All required fields are validated before submission
+- Foreign key references are verified (e.g., doctor must exist before creating a procedure)
+- ID length limits are enforced (max 25 characters)
+- Date formats are validated (yyyy-MM-dd)
+- Email format validation for patients
+- Duplicate ID/MRN detection
