@@ -1,10 +1,11 @@
 package main.cli;
 
 import java.util.List;
-import main.dao.DoctorDAO;
-import main.dao.ProcedureDAO;
 import main.exception.DatabaseException;
+import main.exception.EntityNotFoundException;
+import main.exception.ValidationException;
 import main.model.Procedure;
+import main.service.ProcedureService;
 import main.util.Database;
 
 /**
@@ -13,12 +14,10 @@ import main.util.Database;
  * This class provides a command-line interface for performing CRUD operations
  * on Procedure records in the EMR system.
  * </p>
- *
  */
 public class ProceduresCLI extends CLI {
 
-    private final ProcedureDAO procedureDAO;
-    private final DoctorDAO doctorDAO;
+    private final ProcedureService procedureService;
 
     /**
      * Constructs a new ProceduresCLI with the specified database connection.
@@ -27,8 +26,7 @@ public class ProceduresCLI extends CLI {
      */
     public ProceduresCLI(Database db) {
         super();
-        this.procedureDAO = new ProcedureDAO(db);
-        this.doctorDAO = new DoctorDAO(db);
+        this.procedureService = new ProcedureService(db);
     }
 
     /**
@@ -44,32 +42,25 @@ public class ProceduresCLI extends CLI {
 
             switch (choice) {
                 case 1:
-                    // Create a new procedure
                     createProcedure();
                     break;
                 case 2:
-                    // Read a procedure by ID
                     readProcedure();
                     break;
                 case 3:
-                    // Read all procedures
                     readAllProcedures();
                     break;
                 case 4:
-                    // Update an existing procedure
                     updateProcedure();
                     break;
                 case 5:
-                    // Delete a procedure
                     deleteProcedure();
                     break;
                 case 6:
-                    // Return to main menu
                     running = false;
                     System.out.println("Returning to main menu");
                     break;
                 default:
-                    // Handle invalid menu choice
                     showError("Invalid choice. Please try again.");
             }
         }
@@ -96,75 +87,14 @@ public class ProceduresCLI extends CLI {
         printSeparator();
         System.out.println("Create New Procedure");
 
-        // Prompt user for procedure ID
         String id = getRequiredStringInput("Enter Procedure ID: ");
-
-        // Validate ID length
-        if (id.length() > 25) {
-            showError("Procedure ID cannot exceed 25 characters");
-            System.out.println();
-            return;
-        }
-
-        // Check if a procedure with this ID already exists to prevent duplicates
-        try {
-            if (procedureDAO.exists(id)) {
-                showError("A procedure with ID '" + id + "' already exists");
-                System.out.println();
-                return;
-            }
-        } catch (DatabaseException e) {
-            showError("Error checking procedure ID: " + e.getMessage());
-            System.out.println();
-            return;
-        }
-
-        // Prompt user for procedure name
         String name = getRequiredStringInput("Enter Procedure Name: ");
-        // Prompt user for procedure description
         String description = getRequiredStringInput(
             "Enter Procedure Description: "
         );
-
-        // Prompt user for procedure duration in minutes
         int duration = getIntInput("Enter Procedure Duration (minutes): ");
-        // Validate that duration is positive
-        if (duration <= 0) {
-            showError("Duration must be a positive number");
-            System.out.println();
-            return;
-        }
-        // Validate that duration does not exceed 24 hours
-        if (duration > 1440) {
-            showError("Duration cannot exceed 1440 minutes (24 hours)");
-            System.out.println();
-            return;
-        }
-
-        // Prompt user for doctor ID
         String doctorId = getRequiredStringInput("Enter Doctor ID: ");
 
-        // Validate doctor ID length
-        if (doctorId.length() > 25) {
-            showError("Doctor ID cannot exceed 25 characters");
-            System.out.println();
-            return;
-        }
-
-        // Validate that the doctor exists in the database
-        try {
-            if (!doctorDAO.exists(doctorId)) {
-                showError("Doctor with ID '" + doctorId + "' does not exist");
-                System.out.println();
-                return;
-            }
-        } catch (DatabaseException e) {
-            showError("Error validating doctor: " + e.getMessage());
-            System.out.println();
-            return;
-        }
-
-        // Create a new Procedure object with all collected data
         Procedure procedure = new Procedure(
             id,
             name,
@@ -175,14 +105,15 @@ public class ProceduresCLI extends CLI {
 
         try {
             System.out.println();
-            // Attempt to create the procedure in the database
-            if (procedureDAO.create(procedure)) {
+            if (procedureService.createProcedure(procedure)) {
                 showSuccess("Procedure created successfully");
             } else {
                 showError("Failed to create procedure");
             }
+        } catch (ValidationException e) {
+            showError(e.getMessage());
         } catch (DatabaseException e) {
-            showError("Error creating procedure: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -194,21 +125,16 @@ public class ProceduresCLI extends CLI {
         printSeparator();
         System.out.println("Read Procedure");
 
-        // Prompt user for procedure ID
         String id = getRequiredStringInput("Enter Procedure ID: ");
 
         try {
             System.out.println();
-            // Attempt to read the procedure from the database
-            Procedure procedure = procedureDAO.read(id);
-            // Check if procedure was found and display accordingly
-            if (procedure != null) {
-                displayProcedure(procedure);
-            } else {
-                showNotFound("Procedure", id);
-            }
+            Procedure procedure = procedureService.getProcedure(id);
+            displayProcedure(procedure);
+        } catch (EntityNotFoundException e) {
+            showNotFound("Procedure", id);
         } catch (DatabaseException e) {
-            showError("Error reading procedure: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -222,7 +148,7 @@ public class ProceduresCLI extends CLI {
 
         try {
             System.out.println();
-            List<Procedure> procedures = procedureDAO.readAll();
+            List<Procedure> procedures = procedureService.getAllProcedures();
             if (!procedures.isEmpty()) {
                 int count = 1;
                 for (Procedure p : procedures) {
@@ -235,7 +161,7 @@ public class ProceduresCLI extends CLI {
                 showEmpty("No procedures found");
             }
         } catch (DatabaseException e) {
-            showError("Error reading all procedures: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -248,17 +174,16 @@ public class ProceduresCLI extends CLI {
         System.out.println("Update Procedure");
 
         String id = getRequiredStringInput("Enter Procedure ID: ");
+
         Procedure procedure;
         try {
-            procedure = procedureDAO.read(id);
-        } catch (DatabaseException e) {
-            showError("Error fetching procedure: " + e.getMessage());
+            procedure = procedureService.getProcedure(id);
+        } catch (EntityNotFoundException e) {
+            showNotFound("Procedure", id);
             System.out.println();
             return;
-        }
-
-        if (procedure == null) {
-            showNotFound("Procedure", id);
+        } catch (DatabaseException e) {
+            showError("Database error: " + e.getMessage());
             System.out.println();
             return;
         }
@@ -268,15 +193,13 @@ public class ProceduresCLI extends CLI {
         displayProcedure(procedure);
         System.out.println();
 
-        // Prompt user to update procedure name
-        String input = getStringInput(
-            "Update procedure name (leave empty to skip): "
-        );
+        String input;
+
+        input = getStringInput("Update procedure name (leave empty to skip): ");
         if (!input.isEmpty()) {
             procedure.setName(input);
         }
 
-        // Prompt user to update procedure description
         input = getStringInput(
             "Update procedure description (leave empty to skip): "
         );
@@ -284,24 +207,12 @@ public class ProceduresCLI extends CLI {
             procedure.setDescription(input);
         }
 
-        // Prompt user to update procedure duration
         input = getStringInput(
             "Update procedure duration in minutes (leave empty to skip): "
         );
         if (!input.isEmpty()) {
             try {
-                // Parse the input to integer
                 int duration = Integer.parseInt(input);
-                if (duration <= 0) {
-                    showError("Duration must be a positive number");
-                    System.out.println();
-                    return;
-                }
-                if (duration > 1440) {
-                    showError("Duration cannot exceed 1440 minutes (24 hours)");
-                    System.out.println();
-                    return;
-                }
                 procedure.setDuration(duration);
             } catch (NumberFormatException e) {
                 showError("Invalid duration. Please enter a valid number.");
@@ -310,42 +221,24 @@ public class ProceduresCLI extends CLI {
             }
         }
 
-        input = getStringInput(
-            "Update procedure Doctor ID (leave empty to skip): "
-        );
+        input = getStringInput("Update Doctor ID (leave empty to skip): ");
         if (!input.isEmpty()) {
-            // Validate doctor ID length
-            if (input.length() > 25) {
-                showError("Doctor ID cannot exceed 25 characters");
-                System.out.println();
-                return;
-            }
-
-            // Validate that doctor exists
-            try {
-                if (!doctorDAO.exists(input)) {
-                    showError("Doctor with ID '" + input + "' does not exist");
-                    System.out.println();
-                    return;
-                }
-            } catch (DatabaseException e) {
-                showError("Error validating doctor: " + e.getMessage());
-                System.out.println();
-                return;
-            }
             procedure.setDoctorId(input);
         }
 
         try {
             System.out.println();
-            boolean update = procedureDAO.update(procedure);
-            if (update) {
+            if (procedureService.updateProcedure(procedure)) {
                 showSuccess("Procedure information has been updated");
             } else {
                 showError("Update failed");
             }
+        } catch (ValidationException e) {
+            showError(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            showNotFound("Procedure", id);
         } catch (DatabaseException e) {
-            showError("Error updating procedure: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -358,17 +251,16 @@ public class ProceduresCLI extends CLI {
         System.out.println("Delete Procedure");
 
         String id = getRequiredStringInput("Enter Procedure ID: ");
+
         Procedure procedure;
         try {
-            procedure = procedureDAO.read(id);
-        } catch (DatabaseException e) {
-            showError("Error fetching procedure: " + e.getMessage());
+            procedure = procedureService.getProcedure(id);
+        } catch (EntityNotFoundException e) {
+            showNotFound("Procedure", id);
             System.out.println();
             return;
-        }
-
-        if (procedure == null) {
-            showNotFound("Procedure", id);
+        } catch (DatabaseException e) {
+            showError("Database error: " + e.getMessage());
             System.out.println();
             return;
         }
@@ -385,14 +277,15 @@ public class ProceduresCLI extends CLI {
         ) {
             try {
                 System.out.println();
-                boolean deleted = procedureDAO.delete(id);
-                if (deleted) {
+                if (procedureService.deleteProcedure(id)) {
                     showSuccess("Procedure deleted successfully");
                 } else {
                     showError("Failed to delete procedure");
                 }
+            } catch (EntityNotFoundException e) {
+                showNotFound("Procedure", id);
             } catch (DatabaseException e) {
-                showError("Error deleting procedure: " + e.getMessage());
+                showError("Database error: " + e.getMessage());
             }
         } else {
             showCancelled("Deletion cancelled");

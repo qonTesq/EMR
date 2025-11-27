@@ -2,29 +2,23 @@ package main.cli;
 
 import java.time.LocalDate;
 import java.util.List;
-import main.dao.DoctorDAO;
-import main.dao.PatientDAO;
-import main.dao.PatientHistoryDAO;
-import main.dao.ProcedureDAO;
 import main.exception.DatabaseException;
+import main.exception.EntityNotFoundException;
+import main.exception.ValidationException;
 import main.model.PatientHistory;
+import main.service.PatientHistoryService;
 import main.util.Database;
 
 /**
  * CLI handler for PatientHistory entity management.
  * <p>
  * This class provides a command-line interface for performing CRUD operations
- * on PatientHistory records in the EMR system. It includes validation for
- * foreign key references to Patient, Procedure, and Doctor entities.
+ * on PatientHistory records in the EMR system.
  * </p>
- *
  */
 public class PatientHistoryCLI extends CLI {
 
-    private final PatientHistoryDAO patientHistoryDAO;
-    private final PatientDAO patientDAO;
-    private final ProcedureDAO procedureDAO;
-    private final DoctorDAO doctorDAO;
+    private final PatientHistoryService patientHistoryService;
 
     /**
      * Constructs a new PatientHistoryCLI with the specified database connection.
@@ -33,10 +27,7 @@ public class PatientHistoryCLI extends CLI {
      */
     public PatientHistoryCLI(Database db) {
         super();
-        this.patientHistoryDAO = new PatientHistoryDAO(db);
-        this.patientDAO = new PatientDAO(db);
-        this.procedureDAO = new ProcedureDAO(db);
-        this.doctorDAO = new DoctorDAO(db);
+        this.patientHistoryService = new PatientHistoryService(db);
     }
 
     /**
@@ -52,32 +43,25 @@ public class PatientHistoryCLI extends CLI {
 
             switch (choice) {
                 case 1:
-                    // Create a new patient history record
                     createPatientHistory();
                     break;
                 case 2:
-                    // Read a patient history by ID
                     readPatientHistory();
                     break;
                 case 3:
-                    // Read all patient histories
                     readAllPatientHistories();
                     break;
                 case 4:
-                    // Update an existing patient history
                     updatePatientHistory();
                     break;
                 case 5:
-                    // Delete a patient history
                     deletePatientHistory();
                     break;
                 case 6:
-                    // Return to main menu
                     running = false;
                     System.out.println("Returning to main menu");
                     break;
                 default:
-                    // Handle invalid menu choice
                     showError("Invalid choice. Please try again.");
             }
         }
@@ -104,111 +88,13 @@ public class PatientHistoryCLI extends CLI {
         printSeparator();
         System.out.println("Create New Patient History");
 
-        // Prompt user for history ID
         String id = getRequiredStringInput("Enter History ID: ");
-
-        // Validate ID length
-        if (id.length() > 25) {
-            showError("History ID cannot exceed 25 characters");
-            System.out.println();
-            return;
-        }
-
-        // Check if history ID already exists
-        try {
-            if (patientHistoryDAO.exists(id)) {
-                showError(
-                    "A patient history with ID '" + id + "' already exists"
-                );
-                System.out.println();
-                return;
-            }
-        } catch (DatabaseException e) {
-            showError("Error checking history ID: " + e.getMessage());
-            System.out.println();
-            return;
-        }
-
-        // Prompt user for patient MRN
         int patientId = getIntInput("Enter Patient MRN: ");
-
-        // Validate patient exists
-        try {
-            if (!patientDAO.exists(patientId)) {
-                showError(
-                    "Patient with MRN '" + patientId + "' does not exist"
-                );
-                System.out.println();
-                return;
-            }
-        } catch (DatabaseException e) {
-            showError("Error validating patient: " + e.getMessage());
-            System.out.println();
-            return;
-        }
-
-        // Prompt user for procedure ID
         String procedureId = getRequiredStringInput("Enter Procedure ID: ");
-
-        // Validate procedure ID length
-        if (procedureId.length() > 25) {
-            showError("Procedure ID cannot exceed 25 characters");
-            System.out.println();
-            return;
-        }
-
-        // Validate procedure exists
-        try {
-            if (!procedureDAO.exists(procedureId)) {
-                showError(
-                    "Procedure with ID '" + procedureId + "' does not exist"
-                );
-                System.out.println();
-                return;
-            }
-        } catch (DatabaseException e) {
-            showError("Error validating procedure: " + e.getMessage());
-            System.out.println();
-            return;
-        }
-
-        // Prompt user for date of procedure
         LocalDate date = getDateInput("Enter Date (yyyy-MM-dd): ");
-
-        // Validate date is not in future
-        if (date.isAfter(LocalDate.now())) {
-            showError("Date cannot be in the future");
-            System.out.println();
-            return;
-        }
-
-        // Prompt user for billing amount
         double billing = getPositiveDoubleInput("Enter Billing Amount: ");
-
-        // Prompt user for doctor ID
         String doctorId = getRequiredStringInput("Enter Doctor ID: ");
 
-        // Validate doctor ID length
-        if (doctorId.length() > 25) {
-            showError("Doctor ID cannot exceed 25 characters");
-            System.out.println();
-            return;
-        }
-
-        // Validate doctor exists
-        try {
-            if (!doctorDAO.exists(doctorId)) {
-                showError("Doctor with ID '" + doctorId + "' does not exist");
-                System.out.println();
-                return;
-            }
-        } catch (DatabaseException e) {
-            showError("Error validating doctor: " + e.getMessage());
-            System.out.println();
-            return;
-        }
-
-        // Create a new PatientHistory object with all collected data
         PatientHistory patientHistory = new PatientHistory(
             id,
             patientId,
@@ -220,14 +106,17 @@ public class PatientHistoryCLI extends CLI {
 
         try {
             System.out.println();
-            // Attempt to create the patient history in the database
-            if (patientHistoryDAO.create(patientHistory)) {
+            if (patientHistoryService.createPatientHistory(patientHistory)) {
                 showSuccess("Patient history created successfully");
             } else {
                 showError("Failed to create patient history");
             }
+        } catch (ValidationException e) {
+            showError(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            showError(e.getMessage());
         } catch (DatabaseException e) {
-            showError("Error creating patient history: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -239,21 +128,18 @@ public class PatientHistoryCLI extends CLI {
         printSeparator();
         System.out.println("Read Patient History");
 
-        // Prompt user for history ID
         String id = getRequiredStringInput("Enter History ID: ");
 
         try {
-            // Attempt to read the patient history from the database
-            PatientHistory history = patientHistoryDAO.read(id);
             System.out.println();
-            // Check if history was found and display accordingly
-            if (history != null) {
-                displayPatientHistory(history);
-            } else {
-                showNotFound("Patient History", id);
-            }
+            PatientHistory history = patientHistoryService.getPatientHistory(
+                id
+            );
+            displayPatientHistory(history);
+        } catch (EntityNotFoundException e) {
+            showNotFound("Patient History", id);
         } catch (DatabaseException e) {
-            showError("Error reading Patient History: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -267,7 +153,8 @@ public class PatientHistoryCLI extends CLI {
 
         try {
             System.out.println();
-            List<PatientHistory> histories = patientHistoryDAO.readAll();
+            List<PatientHistory> histories =
+                patientHistoryService.getAllPatientHistories();
             if (!histories.isEmpty()) {
                 int count = 1;
                 for (PatientHistory h : histories) {
@@ -280,7 +167,7 @@ public class PatientHistoryCLI extends CLI {
                 showEmpty("No patient histories found");
             }
         } catch (DatabaseException e) {
-            showError("Error reading all Patient Histories: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -292,55 +179,32 @@ public class PatientHistoryCLI extends CLI {
         printSeparator();
         System.out.println("Update Patient History");
 
-        // Prompt user for history ID
-        String patientHistoryID = getRequiredStringInput("Enter History ID: ");
+        String id = getRequiredStringInput("Enter History ID: ");
+
         PatientHistory history;
-        // Fetch the patient history from database
         try {
-            history = patientHistoryDAO.read(patientHistoryID);
-        } catch (DatabaseException e) {
-            showError("Error retrieving record: " + e.getMessage());
+            history = patientHistoryService.getPatientHistory(id);
+        } catch (EntityNotFoundException e) {
+            showNotFound("Patient History", id);
             System.out.println();
             return;
-        }
-
-        // Check if patient history exists
-        if (history == null) {
-            showNotFound("Patient History", patientHistoryID);
+        } catch (DatabaseException e) {
+            showError("Database error: " + e.getMessage());
             System.out.println();
             return;
         }
 
         System.out.println();
-        // Display current patient history details
         showInfo("Current patient history details:");
         displayPatientHistory(history);
         System.out.println();
 
         String input;
 
-        // Begin updating patient history fields
-        // Prompt user to update patient MRN
         input = getStringInput("Update Patient MRN (leave empty to skip): ");
         if (!input.isEmpty()) {
             try {
                 int patientId = Integer.parseInt(input);
-                // Validate patient exists
-                try {
-                    if (!patientDAO.exists(patientId)) {
-                        showError(
-                            "Patient with MRN '" +
-                                patientId +
-                                "' does not exist"
-                        );
-                        System.out.println();
-                        return;
-                    }
-                } catch (DatabaseException e) {
-                    showError("Error validating patient: " + e.getMessage());
-                    System.out.println();
-                    return;
-                }
                 history.setPatientId(patientId);
             } catch (NumberFormatException e) {
                 showError("Invalid Patient MRN. Please enter a valid number.");
@@ -349,44 +213,17 @@ public class PatientHistoryCLI extends CLI {
             }
         }
 
-        // Prompt user to update procedure ID
         input = getStringInput("Update Procedure ID (leave empty to skip): ");
         if (!input.isEmpty()) {
-            // Validate procedure ID length
-            if (input.length() > 25) {
-                showError("Procedure ID cannot exceed 25 characters");
-                System.out.println();
-                return;
-            }
-            // Validate procedure exists
-            try {
-                if (!procedureDAO.exists(input)) {
-                    showError(
-                        "Procedure with ID '" + input + "' does not exist"
-                    );
-                    System.out.println();
-                    return;
-                }
-            } catch (DatabaseException e) {
-                showError("Error validating procedure: " + e.getMessage());
-                System.out.println();
-                return;
-            }
             history.setProcedureId(input);
         }
 
-        // Prompt user to update date of procedure
         input = getStringInput(
-            "Update Date of Procedure (yyyy-MM-dd, leave empty to skip): "
+            "Update Date (yyyy-MM-dd, leave empty to skip): "
         );
         if (!input.isEmpty()) {
             try {
                 LocalDate date = LocalDate.parse(input, DATE_FORMATTER);
-                if (date.isAfter(LocalDate.now())) {
-                    showError("Date cannot be in the future");
-                    System.out.println();
-                    return;
-                }
                 history.setDate(date);
             } catch (Exception e) {
                 showError("Invalid date format. Please use yyyy-MM-dd format.");
@@ -395,16 +232,10 @@ public class PatientHistoryCLI extends CLI {
             }
         }
 
-        // Prompt user to update billing amount
         input = getStringInput("Update Billing Amount (leave empty to skip): ");
         if (!input.isEmpty()) {
             try {
                 double billing = Double.parseDouble(input);
-                if (billing < 0) {
-                    showError("Billing amount cannot be negative");
-                    System.out.println();
-                    return;
-                }
                 history.setBilling(billing);
             } catch (NumberFormatException e) {
                 showError(
@@ -415,41 +246,24 @@ public class PatientHistoryCLI extends CLI {
             }
         }
 
-        // Prompt user to update doctor ID
         input = getStringInput("Update Doctor ID (leave empty to skip): ");
         if (!input.isEmpty()) {
-            // Validate doctor ID length
-            if (input.length() > 25) {
-                showError("Doctor ID cannot exceed 25 characters");
-                System.out.println();
-                return;
-            }
-            // Validate doctor exists
-            try {
-                if (!doctorDAO.exists(input)) {
-                    showError("Doctor with ID '" + input + "' does not exist");
-                    System.out.println();
-                    return;
-                }
-            } catch (DatabaseException e) {
-                showError("Error validating doctor: " + e.getMessage());
-                System.out.println();
-                return;
-            }
             history.setDoctorId(input);
         }
 
-        // Attempt to update the patient history in the database
         try {
             System.out.println();
-            boolean update = patientHistoryDAO.update(history);
-            if (update) {
+            if (patientHistoryService.updatePatientHistory(history)) {
                 showSuccess("Patient history has been updated");
             } else {
                 showError("Update failed");
             }
+        } catch (ValidationException e) {
+            showError(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            showError(e.getMessage());
         } catch (DatabaseException e) {
-            showError("Error updating patient history: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -461,32 +275,26 @@ public class PatientHistoryCLI extends CLI {
         printSeparator();
         System.out.println("Delete Patient History");
 
-        // Prompt user for history ID
         String id = getRequiredStringInput("Enter History ID: ");
+
         PatientHistory history;
-        // Fetch patient history from database to verify existence
         try {
-            history = patientHistoryDAO.read(id);
-        } catch (DatabaseException e) {
-            showError("Error fetching patient history: " + e.getMessage());
+            history = patientHistoryService.getPatientHistory(id);
+        } catch (EntityNotFoundException e) {
+            showNotFound("Patient History", id);
             System.out.println();
             return;
-        }
-
-        // Check if patient history exists
-        if (history == null) {
-            showNotFound("Patient History", id);
+        } catch (DatabaseException e) {
+            showError("Database error: " + e.getMessage());
             System.out.println();
             return;
         }
 
         System.out.println();
-        // Display patient history details for confirmation
         showInfo("Patient history details:");
         displayPatientHistory(history);
         System.out.println();
 
-        // Ask for user confirmation before deletion
         if (
             getConfirmation(
                 "[WARN] Are you sure you want to delete this patient history? (y/n): "
@@ -494,18 +302,17 @@ public class PatientHistoryCLI extends CLI {
         ) {
             try {
                 System.out.println();
-                // Attempt to delete the patient history from the database
-                boolean deleted = patientHistoryDAO.delete(id);
-                if (deleted) {
+                if (patientHistoryService.deletePatientHistory(id)) {
                     showSuccess("Patient history deleted successfully");
                 } else {
                     showError("Failed to delete patient history");
                 }
+            } catch (EntityNotFoundException e) {
+                showNotFound("Patient History", id);
             } catch (DatabaseException e) {
-                showError("Error deleting patient history: " + e.getMessage());
+                showError("Database error: " + e.getMessage());
             }
         } else {
-            // Handle cancellation of deletion
             showCancelled("Deletion cancelled");
         }
         System.out.println();

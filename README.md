@@ -49,8 +49,7 @@ src/main/
 │   └── PatientHistoryService.java
 ├── util/
 │   └── Database.java           # Database connection management
-└── validation/                 # Input validation
-    ├── ValidationUtils.java
+└── validation/                 # Entity-specific validators
     ├── DoctorValidator.java
     ├── PatientValidator.java
     ├── ProcedureValidator.java

@@ -1,9 +1,11 @@
 package main.cli;
 
 import java.util.List;
-import main.dao.DoctorDAO;
 import main.exception.DatabaseException;
+import main.exception.EntityNotFoundException;
+import main.exception.ValidationException;
 import main.model.Doctor;
+import main.service.DoctorService;
 import main.util.Database;
 
 /**
@@ -12,11 +14,10 @@ import main.util.Database;
  * This class provides a command-line interface for performing CRUD operations
  * on Doctor records in the EMR system.
  * </p>
- *
  */
 public class DoctorsCLI extends CLI {
 
-    private final DoctorDAO doctorDAO;
+    private final DoctorService doctorService;
 
     /**
      * Constructs a new DoctorsCLI with the specified database connection.
@@ -25,7 +26,7 @@ public class DoctorsCLI extends CLI {
      */
     public DoctorsCLI(Database db) {
         super();
-        this.doctorDAO = new DoctorDAO(db);
+        this.doctorService = new DoctorService(db);
     }
 
     /**
@@ -86,46 +87,22 @@ public class DoctorsCLI extends CLI {
         printSeparator();
         System.out.println("Create New Doctor");
 
-        // Prompt user for doctor ID
         String id = getRequiredStringInput("Enter Doctor ID: ");
-
-        // Validate ID length
-        if (id.length() > 25) {
-            showError("Doctor ID cannot exceed 25 characters");
-            System.out.println();
-            return;
-        }
-
-        // Prompt user for doctor name
         String name = getRequiredStringInput("Enter Doctor Name: ");
 
-        // Validate name length
-        if (name.length() > 45) {
-            showError("Doctor name cannot exceed 45 characters");
-            System.out.println();
-            return;
-        }
-
-        // Create a new Doctor object with the provided ID and name
         Doctor doctor = new Doctor(id, name);
 
         try {
             System.out.println();
-            // Check if a doctor with this ID already exists to prevent duplicates
-            if (doctorDAO.exists(id)) {
-                showError("A doctor with ID '" + id + "' already exists");
-                System.out.println();
-                return;
-            }
-
-            // Attempt to create the doctor in the database
-            if (doctorDAO.create(doctor)) {
+            if (doctorService.createDoctor(doctor)) {
                 showSuccess("Doctor created successfully");
             } else {
                 showError("Failed to create doctor");
             }
+        } catch (ValidationException e) {
+            showError(e.getMessage());
         } catch (DatabaseException e) {
-            showError("Error creating doctor: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -137,20 +114,16 @@ public class DoctorsCLI extends CLI {
         printSeparator();
         System.out.println("Read Doctor");
 
-        // Prompt user for doctor ID
         String id = getRequiredStringInput("Enter Doctor ID: ");
 
-        // Attempt to read the doctor from the database
         try {
             System.out.println();
-            Doctor doctor = doctorDAO.read(id);
-            if (doctor != null) {
-                displayDoctor(doctor);
-            } else {
-                showNotFound("Doctor", id);
-            }
+            Doctor doctor = doctorService.getDoctorById(id);
+            displayDoctor(doctor);
+        } catch (EntityNotFoundException e) {
+            showNotFound("Doctor", id);
         } catch (DatabaseException e) {
-            showError("Error reading doctor: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -164,7 +137,7 @@ public class DoctorsCLI extends CLI {
 
         try {
             System.out.println();
-            List<Doctor> doctors = doctorDAO.readAll();
+            List<Doctor> doctors = doctorService.getAllDoctors();
             if (!doctors.isEmpty()) {
                 int count = 1;
                 for (Doctor d : doctors) {
@@ -177,7 +150,7 @@ public class DoctorsCLI extends CLI {
                 showEmpty("No doctors found");
             }
         } catch (DatabaseException e) {
-            showError("Error reading all doctors: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -193,15 +166,13 @@ public class DoctorsCLI extends CLI {
 
         Doctor doctor;
         try {
-            doctor = doctorDAO.read(id);
-        } catch (DatabaseException e) {
-            showError("Error fetching records: " + e.getMessage());
+            doctor = doctorService.getDoctorById(id);
+        } catch (EntityNotFoundException e) {
+            showNotFound("Doctor", id);
             System.out.println();
             return;
-        }
-
-        if (doctor == null) {
-            showNotFound("Doctor", id);
+        } catch (DatabaseException e) {
+            showError("Database error: " + e.getMessage());
             System.out.println();
             return;
         }
@@ -210,26 +181,21 @@ public class DoctorsCLI extends CLI {
         showInfo("Current doctor name: " + doctor.getName());
 
         String updatedName = getRequiredStringInput("Enter new doctor name: ");
-
-        // Validate name length
-        if (updatedName.length() > 45) {
-            showError("Doctor name cannot exceed 45 characters");
-            System.out.println();
-            return;
-        }
-
         doctor.setName(updatedName);
 
         try {
             System.out.println();
-            boolean update = doctorDAO.update(doctor);
-            if (update) {
+            if (doctorService.updateDoctor(doctor)) {
                 showSuccess("Doctor information has been updated");
             } else {
                 showError("Update failed");
             }
+        } catch (ValidationException e) {
+            showError(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            showNotFound("Doctor", id);
         } catch (DatabaseException e) {
-            showError("Error updating doctor: " + e.getMessage());
+            showError("Database error: " + e.getMessage());
         }
         System.out.println();
     }
@@ -242,24 +208,23 @@ public class DoctorsCLI extends CLI {
         System.out.println("Delete Doctor");
 
         String id = getRequiredStringInput("Enter Doctor ID: ");
+
         Doctor doctor;
         try {
-            doctor = doctorDAO.read(id);
-        } catch (DatabaseException e) {
-            showError("Error fetching doctor: " + e.getMessage());
+            doctor = doctorService.getDoctorById(id);
+        } catch (EntityNotFoundException e) {
+            showNotFound("Doctor", id);
             System.out.println();
             return;
-        }
-
-        if (doctor == null) {
-            showNotFound("Doctor", id);
+        } catch (DatabaseException e) {
+            showError("Database error: " + e.getMessage());
             System.out.println();
             return;
         }
 
         System.out.println();
         showInfo("Doctor details:");
-        System.out.println(doctor.toString());
+        displayDoctor(doctor);
 
         if (
             getConfirmation(
@@ -268,14 +233,15 @@ public class DoctorsCLI extends CLI {
         ) {
             try {
                 System.out.println();
-                boolean deleted = doctorDAO.delete(id);
-                if (deleted) {
+                if (doctorService.deleteDoctor(id)) {
                     showSuccess("Doctor deleted successfully");
                 } else {
                     showError("Failed to delete doctor");
                 }
+            } catch (EntityNotFoundException e) {
+                showNotFound("Doctor", id);
             } catch (DatabaseException e) {
-                showError("Error deleting doctor: " + e.getMessage());
+                showError("Database error: " + e.getMessage());
             }
         } else {
             showCancelled("Deletion cancelled");
