@@ -34,27 +34,18 @@ public class ProceduresDAO {
     }
 
     public boolean deleteProcedure(String id) throws SQLException {
-    String sql = "DELETE FROM procedures WHERE id = ?";
+        String sql = "DELETE FROM procedures WHERE id = ?";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
             stmt.setString(1, id);
 
-            // executeUpdate() returns number of rows affected
             return stmt.executeUpdate() > 0;
         }
     }
 
-
-    /**
-     * Retrieves a procedure record by its ID.
-     * This method queries the procedures table for a specific procedure by its unique ID.
-     *
-     * @param id the ID of the procedure to retrieve
-     * @return the Procedures object if found, null otherwise
-     * @throws SQLException if a database access error occurs or the SQL statement
-     *                      fails
-     */
-    public Procedures getProcedure(String id) throws SQLException {
+    public Procedures readProcedure(String id) throws SQLException {
         String sql = "SELECT * FROM procedures WHERE id = ?";
 
         try (
@@ -111,8 +102,6 @@ public class ProceduresDAO {
             stmt.setString(5, procedure.getId());
 
             return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            return false;
         }
     }
 }

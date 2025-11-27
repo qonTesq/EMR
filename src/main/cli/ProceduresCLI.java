@@ -80,13 +80,16 @@ public class ProceduresCLI extends CLI {
         );
 
         try {
+            System.out.println();
             if (proceduresDAO.createProcedure(procedure)) {
-                System.out.println("Procedure created successfully");
+                System.out.println("[OK] Procedure created successfully");
             } else {
-                System.out.println("Failed to create procedure");
+                System.out.println("[ERROR] Failed to create procedure");
             }
         } catch (Exception e) {
-            System.out.println("Error creating procedure: " + e.getMessage());
+            System.out.println(
+                "[ERROR] Error creating procedure: " + e.getMessage()
+            );
         }
         System.out.println();
     }
@@ -98,14 +101,25 @@ public class ProceduresCLI extends CLI {
         String id = getRequiredStringInput("Enter Procedure ID: ");
 
         try {
+            System.out.println();
             Procedures procedure = proceduresDAO.readProcedure(id);
             if (procedure != null) {
-                System.out.println(procedure.toString());
+                System.out.println("ID: " + procedure.getId());
+                System.out.println("Name: " + procedure.getName());
+                System.out.println(
+                    "Description: " + procedure.getDescription()
+                );
+                System.out.println("Duration: " + procedure.getDuration());
+                System.out.println("Doctor ID: " + procedure.getDoctorId());
             } else {
-                System.out.println("Procedure with ID " + id + " not found");
+                System.out.println(
+                    "[NOT FOUND] Procedure with ID " + id + " not found"
+                );
             }
         } catch (Exception e) {
-            System.out.println("Error reading procedure: " + e.getMessage());
+            System.out.println(
+                "[ERROR] Error reading procedure: " + e.getMessage()
+            );
         }
         System.out.println();
     }
@@ -115,17 +129,26 @@ public class ProceduresCLI extends CLI {
         System.out.println("Read All Procedures");
 
         try {
+            System.out.println();
             List<Procedures> procedures = proceduresDAO.readAllProcedures();
             if (!procedures.isEmpty()) {
+                int count = 1;
                 for (Procedures p : procedures) {
-                    System.out.println(p.toString());
+                    System.out.println("Procedure " + count + ":");
+                    System.out.println("ID: " + p.getId());
+                    System.out.println("Name: " + p.getName());
+                    System.out.println("Description: " + p.getDescription());
+                    System.out.println("Duration: " + p.getDuration());
+                    System.out.println("Doctor ID: " + p.getDoctorId());
+                    System.out.println();
+                    count++;
                 }
             } else {
-                System.out.println("No procedures found");
+                System.out.println("[EMPTY] No procedures found");
             }
         } catch (Exception e) {
             System.out.println(
-                "Error reading all procedures: " + e.getMessage()
+                "[ERROR] Error reading all procedures: " + e.getMessage()
             );
         }
         System.out.println();
@@ -185,33 +208,66 @@ public class ProceduresCLI extends CLI {
         }
 
         try {
+            System.out.println();
             boolean update = proceduresDAO.updateProcedure(procedures);
             if (update) {
-                System.out.println("Procedure information has been updated");
+                System.out.println(
+                    "[OK] Procedure information has been updated"
+                );
             } else {
-                System.out.println("Update failed");
+                System.out.println("[ERROR] Update failed");
             }
         } catch (SQLException e) {
-            System.out.println("Update failed: " + e.getMessage());
+            System.out.println("[ERROR] Update failed: " + e.getMessage());
         }
         System.out.println();
     }
 
     private void deleteProcedure() {
-        System.out.println("\n--- Delete Procedure (WIP) ---");
-        String id = getStringInput("Enter Procedure ID: ");
+        System.out.println("-----");
+        System.out.println("Delete Procedure");
 
+        String id = getRequiredStringInput("Enter Procedure ID: ");
+        Procedures procedure;
         try {
-            if (proceduresDAO.deleteProcedure(id)) {
-                System.out.println("\nPatient deleted successfully!");
-            } else {
-                System.out.println("\n!!! Failed to delete patient !!!");
-            }
-        } catch (Exception e) {
-            // Handle database errors (e.g., duplicate MRN, connection issues)
-            System.out.println("\n!!! Error deleting patient: " + e.getMessage() + " !!!");
+            procedure = proceduresDAO.readProcedure(id);
+        } catch (SQLException e) {
+            System.out.println(
+                "❌ Error fetching procedure: " + e.getMessage()
+            );
+            System.out.println();
+            return;
         }
+
+        if (procedure == null) {
+            System.out.println("[NOT FOUND] Procedure not found");
+            System.out.println();
+            return;
+        }
+
+        System.out.println();
+        System.out.println("[INFO] Procedure details:");
+        System.out.println(procedure.toString());
+        String confirm = getStringInput(
+            "[WARN] Are you sure you want to delete this procedure? (y/n): "
+        );
+        if (confirm.equalsIgnoreCase("y")) {
+            try {
+                System.out.println();
+                boolean deleted = proceduresDAO.deleteProcedure(id);
+                if (deleted) {
+                    System.out.println("[OK] Procedure deleted successfully");
+                } else {
+                    System.out.println("[ERROR] Failed to delete procedure");
+                }
+            } catch (SQLException e) {
+                System.out.println(
+                    "[ERROR] Error deleting procedure: " + e.getMessage()
+                );
+            }
+        } else {
+            System.out.println("[CANCELLED] Deletion cancelled");
+        }
+        System.out.println();
     }
 }
-
-

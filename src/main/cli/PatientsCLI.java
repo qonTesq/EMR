@@ -89,13 +89,16 @@ public class PatientsCLI extends CLI {
         );
 
         try {
+            System.out.println();
             if (patientDAO.createPatient(patient)) {
-                System.out.println("Patient created successfully");
+                System.out.println("[OK] Patient created successfully");
             } else {
-                System.out.println("Failed to create patient");
+                System.out.println("[ERROR] Failed to create patient");
             }
         } catch (Exception e) {
-            System.out.println("Error creating patient: " + e.getMessage());
+            System.out.println(
+                "[ERROR] Error creating patient: " + e.getMessage()
+            );
         }
         System.out.println();
     }
@@ -104,20 +107,32 @@ public class PatientsCLI extends CLI {
         System.out.println("-----");
         System.out.println("Read Patient");
 
-        // Collect doctor information with validation
         int id = getIntInput("Enter MRN: ");
 
-        // Attempt to read patient from database
         try {
+            System.out.println();
             Patients patient = patientDAO.readPatient(id);
             if (patient != null) {
-                System.out.println(patient.toString());
+                System.out.println("MRN: " + patient.getMrn());
+                System.out.println(
+                    "Name: " + patient.getFname() + " " + patient.getLname()
+                );
+                System.out.println("DOB: " + patient.getDob());
+                System.out.println("Address: " + patient.getAddress());
+                System.out.println("City: " + patient.getCity());
+                System.out.println("State: " + patient.getState());
+                System.out.println("Zip: " + patient.getZip());
+                System.out.println("Insurance: " + patient.getInsurance());
+                System.out.println("Email: " + patient.getEmail());
             } else {
-                System.out.println("Patient with MRN " + id + " not found");
+                System.out.println(
+                    "[NOT FOUND] Patient with MRN " + id + " not found"
+                );
             }
         } catch (Exception e) {
-            // Handle database errors (e.g., duplicate doctor ID)
-            System.out.println("Error reading patient: " + e.getMessage());
+            System.out.println(
+                "[ERROR] Error reading patient: " + e.getMessage()
+            );
         }
         System.out.println();
     }
@@ -126,19 +141,34 @@ public class PatientsCLI extends CLI {
         System.out.println("-----");
         System.out.println("Read All Patients");
 
-        // Attempt to read all patients from the database
         try {
+            System.out.println();
             List<Patients> patients = patientDAO.readAllPatients();
             if (!patients.isEmpty()) {
+                int count = 1;
                 for (Patients p : patients) {
-                    System.out.println(p.toString());
+                    System.out.println("Patient " + count + ":");
+                    System.out.println("MRN: " + p.getMrn());
+                    System.out.println(
+                        "Name: " + p.getFname() + " " + p.getLname()
+                    );
+                    System.out.println("DOB: " + p.getDob());
+                    System.out.println("Address: " + p.getAddress());
+                    System.out.println("City: " + p.getCity());
+                    System.out.println("State: " + p.getState());
+                    System.out.println("Zip: " + p.getZip());
+                    System.out.println("Insurance: " + p.getInsurance());
+                    System.out.println("Email: " + p.getEmail());
+                    System.out.println();
+                    count++;
                 }
             } else {
-                System.out.println("No patients found");
+                System.out.println("[EMPTY] No patients found");
             }
         } catch (Exception e) {
-            // Handle database errors (e.g., duplicate doctor ID)
-            System.out.println("Error reading all Patients: " + e.getMessage());
+            System.out.println(
+                "[ERROR] Error reading all Patients: " + e.getMessage()
+            );
         }
         System.out.println();
     }
@@ -226,33 +256,66 @@ public class PatientsCLI extends CLI {
         }
 
         try {
+            System.out.println();
             boolean update = patientDAO.updatePatient(patient);
             if (update) {
-                System.out.println("Patient information has been updated");
+                System.out.println("[OK] Patient information has been updated");
             } else {
-                System.out.println("Update failed");
+                System.out.println("[ERROR] Update failed");
             }
         } catch (SQLException e) {
-            System.out.println("Error updating patient: " + e.getMessage());
+            System.out.println(
+                "[ERROR] Error updating patient: " + e.getMessage()
+            );
         }
         System.out.println();
     }
 
     private void deletePatient() {
-        System.out.println("\n--- Delete Patient (WIP) ---");
-        int mrn = getIntInput("Enter MRN: ");
+        System.out.println("-----");
+        System.out.println("Delete Patient");
 
+        int mrn = getIntInput("Enter MRN: ");
+        Patients patient;
         try {
-            if (patientDAO.deletePatient(mrn)) {
-                System.out.println("\nPatient deleted successfully!");
-            } else {
-                System.out.println("\n!!! Failed to delete patient !!!");
-            }
-        } catch (Exception e) {
-            // Handle database errors (e.g., duplicate MRN, connection issues)
-            System.out.println("\n!!! Error deleting patient: " + e.getMessage() + " !!!");
+            patient = patientDAO.readPatient(mrn);
+        } catch (SQLException e) {
+            System.out.println(
+                "[ERROR] Error fetching patient: " + e.getMessage()
+            );
+            System.out.println();
+            return;
         }
 
-          
+        if (patient == null) {
+            System.out.println("[NOT FOUND] Patient not found");
+            System.out.println();
+            return;
+        }
+
+        System.out.println();
+        System.out.println("[INFO] Patient details:");
+        System.out.println(patient.toString());
+        String confirm = getStringInput(
+            "[WARN] Are you sure you want to delete this patient? (y/n): "
+        );
+        if (confirm.equalsIgnoreCase("y")) {
+            try {
+                System.out.println();
+                boolean deleted = patientDAO.deletePatient(mrn);
+                if (deleted) {
+                    System.out.println("[OK] Patient deleted successfully");
+                } else {
+                    System.out.println("[ERROR] Failed to delete patient");
+                }
+            } catch (SQLException e) {
+                System.out.println(
+                    "[ERROR] Error deleting patient: " + e.getMessage()
+                );
+            }
+        } else {
+            System.out.println("[CANCELLED] Deletion cancelled");
+        }
+        System.out.println();
     }
 }

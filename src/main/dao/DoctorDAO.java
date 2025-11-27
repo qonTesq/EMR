@@ -30,17 +30,18 @@ public class DoctorDAO {
     }
 
     public boolean deleteDoctor(String doctorId) throws SQLException {
-    String sql = "DELETE FROM doctors WHERE id = ?";
+        String sql = "DELETE FROM doctors WHERE id = ?";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+        try (
+            PreparedStatement stmt = db.getConnection().prepareStatement(sql)
+        ) {
             stmt.setString(1, doctorId);
 
-            // executeUpdate() returns number of rows affected
             return stmt.executeUpdate() > 0;
         }
     }
 
-    public Doctors getDoctor(String id) throws SQLException {
+    public Doctors readDoctor(String id) throws SQLException {
         String sql = "SELECT * FROM doctors WHERE id = ?";
 
         try (
@@ -78,7 +79,7 @@ public class DoctorDAO {
         }
     }
 
-    public boolean updateDoctor(Doctors doctor) {
+    public boolean updateDoctor(Doctors doctor) throws SQLException {
         String sql = "UPDATE doctors SET name = ? WHERE id = ?";
         try (
             PreparedStatement stmt = db.getConnection().prepareStatement(sql)
@@ -86,8 +87,6 @@ public class DoctorDAO {
             stmt.setString(1, doctor.getName());
             stmt.setString(2, doctor.getId());
             return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            return false;
         }
     }
 }
