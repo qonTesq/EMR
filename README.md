@@ -186,21 +186,51 @@ CREATE TABLE `patient_history` (
 
 ## Running the Program
 
-1. Compile the source code:
+### Using Visual Studio Code (VSCode)
 
-   ```
-   javac -cp "lib/mysql-connector-j-9.4.0.jar" -d bin src/main/**/*.java src/main/*.java
-   ```
+VSCode with Java extensions provides automatic compilation and built-in run commands.
 
-2. Run the program:
-   ```
-   java -cp "bin;lib/mysql-connector-j-9.4.0.jar" main.App
-   ```
+#### Required Extensions
 
-   On Linux/macOS use `:` instead of `;`:
-   ```
-   java -cp "bin:lib/mysql-connector-j-9.4.0.jar" main.App
-   ```
+Install the **Extension Pack for Java** (by Microsoft), which includes:
+- Language Support for Java (Red Hat)
+- Debugger for Java
+- Test Runner for Java
+- Maven for Java
+- Project Manager for Java
+
+Once configured:
+
+1. Open `App.java`
+2. Look for the **"Run | Debug"** link above `public static void main`
+3. Click **"Run"**
+4. VSCode handles compilation and execution automatically!
+
+### Using Terminal/Command Line
+
+#### PowerShell/Command Prompt (Windows)
+
+**Step 1: Compile**
+```powershell
+javac -cp "lib\mysql-connector-j-9.4.0.jar" -d bin src\main\cli\*.java src\main\config\*.java src\main\dao\*.java src\main\exception\*.java src\main\model\*.java src\main\service\*.java src\main\util\*.java src\main\validation\*.java src\main\App.java
+```
+
+**Step 2: Run**
+```powershell
+java -cp "bin;lib\mysql-connector-j-9.4.0.jar" main.App
+```
+
+#### Linux/macOS
+
+**Step 1: Compile**
+```bash
+javac -cp "lib/mysql-connector-j-9.4.0.jar" -d bin src/main/cli/*.java src/main/config/*.java src/main/dao/*.java src/main/exception/*.java src/main/model/*.java src/main/service/*.java src/main/util/*.java src/main/validation/*.java src/main/App.java
+```
+
+**Step 2: Run**
+```bash
+java -cp "bin:lib/mysql-connector-j-9.4.0.jar" main.App
+```
 
 ## Usage
 
