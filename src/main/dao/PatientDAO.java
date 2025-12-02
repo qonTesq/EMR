@@ -27,6 +27,8 @@ public class PatientDAO implements BaseDAO<Patient, Integer> {
         DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter LEGACY_DOB_FORMATTER =
         DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter US_DOB_FORMATTER =
+        DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     private final Database db;
 
@@ -241,23 +243,30 @@ public class PatientDAO implements BaseDAO<Patient, Integer> {
     }
 
     /**
-     * Parses a date of birth string, supporting both modern and legacy formats.
+     * Parses a date of birth string, supporting multiple formats.
      * <p>
-     * This method first attempts to parse using the standard yyyy-MM-dd format.
-     * If that fails, it falls back to the legacy dd/MM/yyyy format.
+     * This method attempts to parse using the following formats in order:
+     * 1. Standard yyyy-MM-dd format
+     * 2. US MM/dd/yyyy format
+     * 3. Legacy dd/MM/yyyy format
      * </p>
      *
      * @param dobString the date string to parse
      * @return the parsed LocalDate
-     * @throws DateTimeParseException if the date cannot be parsed with either format
+     * @throws DateTimeParseException if the date cannot be parsed with any format
      */
     private LocalDate parseDob(String dobString) {
         try {
             // Attempt to parse the DOB using the standard yyyy-MM-dd format
             return LocalDate.parse(dobString, DOB_FORMATTER);
-        } catch (DateTimeParseException e) {
-            // If standard format fails, try the legacy dd/MM/yyyy format
-            return LocalDate.parse(dobString, LEGACY_DOB_FORMATTER);
+        } catch (DateTimeParseException e1) {
+            // If standard format fails, try the US MM/dd/yyyy format
+            try {
+                return LocalDate.parse(dobString, US_DOB_FORMATTER);
+            } catch (DateTimeParseException e2) {
+                // If US format fails, try the legacy dd/MM/yyyy format
+                return LocalDate.parse(dobString, LEGACY_DOB_FORMATTER);
+            }
         }
     }
 }
