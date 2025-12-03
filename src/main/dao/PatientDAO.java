@@ -28,7 +28,7 @@ public class PatientDAO implements BaseDAO<Patient, Integer> {
     private static final DateTimeFormatter LEGACY_DOB_FORMATTER =
         DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter US_DOB_FORMATTER =
-        DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        DateTimeFormatter.ofPattern("M/d/yyyy");
 
     private final Database db;
 
